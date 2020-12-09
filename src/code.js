@@ -8,4 +8,4 @@ export default class Code {
   init() {
     return this.element;
   }
-};
+}

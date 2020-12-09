@@ -7,8 +7,8 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index_bundle.js'
-  },  
+    filename: 'index_bundle.js',
+  },
   mode: 'development',
   module: {
     rules: [
@@ -19,23 +19,21 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // Creates `style` nodes from JS strings
-        //   "style-loader",
           MiniCssExtractPlugin.loader,
-          "css-loader",
-          "sass-loader",
+          'css-loader',
+          'sass-loader',
         ],
       },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-        title: 'webpack Boilerplate',
-        template: path.resolve(__dirname, './src/template.html'),
-        filename: 'index.html',
+      title: 'webpack Boilerplate',
+      template: path.resolve(__dirname, './src/template.html'),
+      filename: 'index.html',
     }),
     new MiniCssExtractPlugin({
-        filename: 'slyles.css',
+      filename: 'slyles.css',
     }),
     new CleanWebpackPlugin(),
   ],

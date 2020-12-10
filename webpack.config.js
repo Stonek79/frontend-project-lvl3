@@ -29,7 +29,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'RSS aggregator',
-      template: 'template.html',
+      template: 'index.html',
       filename: 'index.html',
     }),
     new MiniCssExtractPlugin({

@@ -28,8 +28,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'webpack Boilerplate',
-      template: path.resolve(__dirname, './src/template.html'),
+      title: 'RSS aggregator',
+      template: 'template.html',
       filename: 'index.html',
     }),
     new MiniCssExtractPlugin({

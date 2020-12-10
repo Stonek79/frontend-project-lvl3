@@ -4,7 +4,7 @@
   "description": "My RSS aggregator",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack",
+    "build": "NODE_ENV=production npx webpack",
     "test": "npx -n --experimental-vm-modules jest"
   },
   "repository": {

@@ -1,34 +1,44 @@
 @import "~bootstrap/scss/bootstrap";
 
 .jumbotron-fluid {
-    padding-right: 0;
-    padding-left: 0;
-    border-radius: 0;
+  padding-right: 0;
+  padding-left: 0;
+  border-radius: 0;
 }
 
 .jumbotron {
-    padding: 4rem 0rem;
+  padding: 4rem 0rem;
 }
 
 .form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: 3px;
-    margin-left: 3px;
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: 3px;
+  margin-left: 3px;
 }
 
 .form-control-lg {
-    height: calc(1.5em + 1rem + 2px);
-    padding: .5rem 1rem;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    border-radius: .3rem;
+  height: calc(1.5em + 1rem + 2px);
+  padding: .5rem 1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  border-radius: .3rem;
+}
+
+.modal-header .close {
+  padding: 1rem 1rem;
+  margin: -1rem -1rem -1rem auto;
 }
 
 .col {
-    margin-right: 6px;
+  margin-right: 6px;
 }
 
 body {
-    background-color: rgb(206, 204, 204);
+  background-color: rgb(240, 240, 240);
+  font-family: auto;
+}
+
+a {
+  text-decoration: none;
 }

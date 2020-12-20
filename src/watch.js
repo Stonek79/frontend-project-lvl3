@@ -30,8 +30,7 @@ export const catchError = (watchedState) => {
 let idCount = 1;
 export const parse = (url, watchedState) => {
   const feedId = idCount;
-  const data = getter(url);
-  data.then((el) => {
+  return getter(url).then((el) => {
     const parsedRssData = parser(el.contents);
     const ftitle = parsedRssData.querySelector('title').textContent;
     const fdescription = parsedRssData.querySelector('description').textContent;
@@ -55,5 +54,8 @@ export const parse = (url, watchedState) => {
     watchedState.links.push(url);
     watchedState.processState = 'idle';
   })
-    .catch((err) => err);
+    .catch(() => {
+      watchedState.error = 'mastHaveRSS';
+      watchedState.processState = 'cancelled';
+    });
 };

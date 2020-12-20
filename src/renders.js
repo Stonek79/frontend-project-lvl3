@@ -1,38 +1,6 @@
 /* eslint-disable no-unused-expressions */
+
 import i18next from 'i18next';
-import resources from './i18next.js';
-
-const run18 = async () => {
-  await i18next.init({
-    lng: 'en',
-    debug: true,
-    resources,
-  });
-};
-run18();
-
-const feeds = document.querySelector('div .feeds');
-const posts = document.querySelector('div .posts');
-const input = document.querySelector('input');
-const feedbackElement = document.querySelector('.feedback');
-
-const madeFeedsForm = () => {
-  const h2 = document.createElement('h2');
-  h2.textContent = 'Feeds';
-  feeds.append(h2);
-  const ul = document.createElement('ul');
-  ul.setAttribute('class', 'list-group mb-5');
-  feeds.append(ul);
-};
-
-const madePostsForm = () => {
-  const h2 = document.createElement('h2');
-  h2.textContent = 'Posts';
-  posts.append(h2);
-  const ul = document.createElement('ul');
-  ul.setAttribute('class', 'list-group');
-  posts.append(ul);
-};
 
 const madeLiFeeds = (title, desc) => {
   const li = document.createElement('li');
@@ -78,11 +46,16 @@ export const modalRender = (id) => {
 };
 
 export const render = (feed, items) => {
+  const feeds = document.querySelector('div .feeds');
+  const posts = document.querySelector('div .posts');
+  const input = document.querySelector('input');
+  const feedbackElement = document.querySelector('.feedback');
+
   if (!feeds.hasChildNodes()) {
-    madeFeedsForm();
+    feeds.innerHTML = '<h2>Feeds</h2><ul class="list-group mb-5"></ul>';
   }
   if (!posts.hasChildNodes()) {
-    madePostsForm();
+    posts.innerHTML = '<h2>Posts</h2><ul class="list-group"></ul>';
   }
   const feedsList = feeds.querySelector('ul');
   const postsList = posts.querySelector('ul');
@@ -92,16 +65,21 @@ export const render = (feed, items) => {
   postsList.prepend(...postsContent);
 
   input.value = null;
-  const loadedMessage = resources.translation.loaded;
-  feedbackElement.classList.remove('text-loaded');
-  feedbackElement.classList.add('text-loaded');
+  const loadedMessage = i18next.t('loaded');
+  input.classList.remove('is-invalid');
+  feedbackElement.classList.remove('text-danger');
+  feedbackElement.classList.add('text-success');
   feedbackElement.innerHTML = loadedMessage;
 };
 
 export const renderErrors = (error) => {
-  const errorMessage = resources.translation.errors[`${error}`];
-  feedbackElement.classList.remove('text-loaded');
-  feedbackElement.classList.add('text-error');
+  const feedbackElement = document.querySelector('.feedback');
+  const input = document.querySelector('input');
+  const errorMessage = i18next.t(`errors.${error}`);
+  console.log(i18next.t(`errors.${error}`));
+  input.classList.add('is-invalid');
+  feedbackElement.classList.remove('text-success');
+  feedbackElement.classList.add('text-danger');
   feedbackElement.innerHTML = errorMessage;
   input.value = null;
 };

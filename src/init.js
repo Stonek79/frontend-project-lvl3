@@ -1,8 +1,10 @@
 import i18next from 'i18next';
 import onChange from 'on-change';
 import resources from './i18next.js';
-import { modalRender, render, renderErrors } from './renders.js';
-import { catchError, parse } from './watch.js';
+import {
+  feedRender, modalRender, postsRender, errorsRender,
+} from './renders.js';
+import { formStatusHandler, processStateHandler } from './watch.js';
 
 export default () => {
   const state = {
@@ -18,19 +20,22 @@ export default () => {
   };
 
   const watchedState = onChange(state, (path, value) => {
-    console.log(state, path, value);
-    switch (value) {
-      case 'sending':
-        catchError(watchedState);
+    // console.log(state, value, previousValue);
+    switch (path) {
+      case 'form.status':
+        formStatusHandler(value, watchedState);
         break;
-      case state.error:
-        renderErrors(value);
+      case 'processState':
+        processStateHandler(value, watchedState);
         break;
-      case 'inProcess':
-        parse(state.form.link, watchedState);
+      case 'feeds':
+        feedRender(watchedState);
         break;
-      case 'idle':
-        render(state.feeds[0], state.posts[0]);
+      case 'posts':
+        postsRender(value);
+        break;
+      case 'error':
+        errorsRender(watchedState);
         break;
       default:
         break;
@@ -49,10 +54,7 @@ export default () => {
     watchedState.form.status = 'sending';
   });
 
-  watchedElements.preview.addEventListener('click', (e) => {
-    const modal = e.target;
-    return modalRender(modal.dataset.id);
-  });
+  watchedElements.preview.addEventListener('click', (e) => modalRender(e.target.dataset.id, watchedState));
 
   i18next.init({
     lng: 'en',

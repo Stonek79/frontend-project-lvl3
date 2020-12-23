@@ -3,59 +3,100 @@
 import * as yup from 'yup';
 import parser from './parser.js';
 import getter from './getter.js';
+import { errorsRender } from './renders.js';
 
+// let idCount = 1;
 const schema = yup.string().url();
 
 const hasRss = (link, links) => links.filter((l) => l === link).length !== 0;
 
-export const catchError = (watchedState) => {
+export const formStatusHandler = (formStatus, watchedState) => {
+  if (formStatus === 'filling') return;
   const { links } = watchedState;
   const { link } = watchedState.form;
-  const err = [];
   if (link === '') {
-    err.push('emptyInput');
+    watchedState.error = 'emptyInput';
   } else if (!schema.isValidSync(link)) {
-    err.push('mastValid');
+    watchedState.error = 'mastValid';
   } else if (hasRss(link, links)) {
-    err.push('alreadyExist');
-  }
-  if (err.length !== 0) {
-    watchedState.error = [...err];
+    watchedState.error = 'alreadyExist';
   } else {
-    watchedState.processState = 'inProcess';
+    watchedState.processState = 'inProgress';
   }
   watchedState.form.status = 'filling';
 };
 
-let idCount = 1;
-export const parse = (url, watchedState) => {
-  const feedId = idCount;
-  return getter(url).then((el) => {
+const rssDataParser = (url, watchedState) => getter(url)
+  .then((el) => {
+    let idCount = watchedState.posts.length === 0
+      ? 1 : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
+    const feedId = idCount;
     const parsedRssData = parser(el.contents);
     const ftitle = parsedRssData.querySelector('title').textContent;
     const fdescription = parsedRssData.querySelector('description').textContent;
     const postContent = parsedRssData.querySelectorAll('item');
-    const feed = { feedId, ftitle, fdescription };
+    const feed = {
+      feedId, ftitle, fdescription, url,
+    };
     idCount += 1;
     const commonPosts = [];
     postContent.forEach((post) => {
       const id = idCount;
+      const ptime = post.querySelector('pubDate').textContent;
       const link = post.querySelector('link').textContent;
       const ptitle = post.querySelector('title').textContent;
       const pdescription = post.querySelector('description').textContent;
       commonPosts.push({
-        id, ptitle, pdescription, link,
+        id, ptitle, pdescription, link, ptime: Date.parse(ptime), feedId,
       });
       idCount += 1;
     });
-    watchedState.posts.unshift({ [feedId]: [...commonPosts] });
+    return { feed, commonPosts };
+  })
+  .catch((e) => e);
+
+const newRssParser = (url, watchedState) => rssDataParser(url, watchedState)
+  .then((rssData) => {
+    const { feed, commonPosts } = rssData;
+    watchedState.posts.unshift(...commonPosts);
     watchedState.feeds.unshift(feed);
     watchedState.form.link = '';
     watchedState.links.push(url);
     watchedState.processState = 'idle';
   })
-    .catch(() => {
-      watchedState.error = 'mastHaveRSS';
-      watchedState.processState = 'cancelled';
+  .catch((e) => {
+    console.log(e);
+    watchedState.error = 'mastHaveRSS';
+    watchedState.processState = 'failed';
+  });
+
+const runRssWatcher = (watchedState) => {
+  const { links, posts } = watchedState;
+  links.forEach((link) => {
+    const postsTime = [...posts].map((post) => post.ptime).flat();
+    const latestPostTime = Math.max(...postsTime);
+    rssDataParser(link, watchedState).then((rssData) => {
+      const { commonPosts } = rssData;
+      const latestPosts = [...commonPosts].filter((post) => post.ptime > latestPostTime);
+      console.log('latestPosts', ...latestPosts, link);
+      watchedState.posts.unshift(...latestPosts);
     });
+  });
+  setTimeout(() => runRssWatcher(watchedState), 5000);
+};
+
+export const processStateHandler = (processState, watchedState) => {
+  const url = watchedState.form.link;
+  switch (processState) {
+    case 'inProgress':
+      newRssParser(url, watchedState);
+      break;
+    case 'idle':
+      setTimeout(() => runRssWatcher(watchedState), 5000);
+      break;
+    case 'failed':
+      break;
+    default:
+      throw new Error(`Unknown state: ${processState}`);
+  }
 };

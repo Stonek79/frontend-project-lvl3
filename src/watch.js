@@ -33,9 +33,7 @@ const rssDataParser = (url, watchedState) => getter(url)
     const ftitle = parsedRssData.querySelector('title').textContent;
     const fdescription = parsedRssData.querySelector('description').textContent;
     const postContent = parsedRssData.querySelectorAll('item');
-    const feed = {
-      feedId, ftitle, fdescription, url,
-    };
+    const feed = { feedId, ftitle, fdescription };
     idCount += 1;
     const commonPosts = [];
     postContent.forEach((post) => {
@@ -62,8 +60,7 @@ const newRssParser = (url, watchedState) => rssDataParser(url, watchedState)
     watchedState.links.push(url);
     watchedState.processState = 'idle';
   })
-  .catch((e) => {
-    console.log(e);
+  .catch(() => {
     watchedState.error = 'mastHaveRSS';
     watchedState.processState = 'failed';
   });
@@ -89,7 +86,7 @@ export const processStateHandler = (processState, watchedState) => {
       newRssParser(url, watchedState);
       break;
     case 'idle':
-      setTimeout(() => runRssWatcher(watchedState), 0);
+      setTimeout(() => runRssWatcher(watchedState), 5000);
       break;
     case 'failed':
       break;

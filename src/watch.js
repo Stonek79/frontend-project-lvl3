@@ -3,9 +3,7 @@
 import * as yup from 'yup';
 import parser from './parser.js';
 import getter from './getter.js';
-import { errorsRender } from './renders.js';
 
-// let idCount = 1;
 const schema = yup.string().url();
 
 const hasRss = (link, links) => links.filter((l) => l === link).length !== 0;
@@ -47,13 +45,13 @@ const rssDataParser = (url, watchedState) => getter(url)
       const ptitle = post.querySelector('title').textContent;
       const pdescription = post.querySelector('description').textContent;
       commonPosts.push({
-        id, ptitle, pdescription, link, ptime: Date.parse(ptime), feedId,
+        id, ptitle, pdescription, link, ptime: Date.parse(ptime), font: 'bold', feedId,
       });
       idCount += 1;
     });
     return { feed, commonPosts };
   })
-  .catch((e) => e);
+  .catch((err) => err);
 
 const newRssParser = (url, watchedState) => rssDataParser(url, watchedState)
   .then((rssData) => {
@@ -73,12 +71,11 @@ const newRssParser = (url, watchedState) => rssDataParser(url, watchedState)
 const runRssWatcher = (watchedState) => {
   const { links, posts } = watchedState;
   links.forEach((link) => {
-    const postsTime = [...posts].map((post) => post.ptime).flat();
+    const postsTime = [...posts].flatMap((post) => post.ptime);
     const latestPostTime = Math.max(...postsTime);
     rssDataParser(link, watchedState).then((rssData) => {
       const { commonPosts } = rssData;
       const latestPosts = [...commonPosts].filter((post) => post.ptime > latestPostTime);
-      console.log('latestPosts', ...latestPosts, link);
       watchedState.posts.unshift(...latestPosts);
     });
   });
@@ -92,7 +89,7 @@ export const processStateHandler = (processState, watchedState) => {
       newRssParser(url, watchedState);
       break;
     case 'idle':
-      setTimeout(() => runRssWatcher(watchedState), 5000);
+      setTimeout(() => runRssWatcher(watchedState), 0);
       break;
     case 'failed':
       break;

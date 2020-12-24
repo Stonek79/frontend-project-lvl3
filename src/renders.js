@@ -2,7 +2,7 @@
 
 import i18next from 'i18next';
 
-const madeLiFeeds = (feed) => {
+const liFeeds = (feed) => {
   const { ftitle, fdescription } = feed;
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item');
@@ -10,38 +10,39 @@ const madeLiFeeds = (feed) => {
   return li;
 };
 
-const madeLiPost = (post) => {
-  const { id, ptitle, link } = post;
+const liPosts = (post) => {
+  const {
+    id, ptitle, link, font,
+  } = post;
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
-  li.innerHTML = `<a style='font-weight: bold' href=${link} data-id=${id} target='_blank'>${ptitle}</a>
+  li.innerHTML = `<a style='font-weight: ${font}' href=${link} data-id=${id} target='_blank'>
+      ${ptitle}
+    </a>
   <button type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">
     Preview
   </button>`;
   return li;
 };
 
-export const modalRender = (id, watchedState) => {
+const modalRender = (id, watchedState) => {
   const { posts } = watchedState;
-  const commonPost = [...posts].filter((post) => post.id === +id);
+  const commonPost = [...posts].filter((post) => post.id === +id)[0];
   const mtitle = document.querySelector('.modal-title');
   const mbody = document.querySelector('.modal-body');
   const mfooter = document.querySelector('.modal-footer a');
-  mtitle.innerHTML = commonPost[0].ptitle;
-  mbody.innerHTML = commonPost[0].pdescription;
-  mfooter.setAttribute('href', commonPost[0].link);
-  document.querySelector(`[data-id="${id}"]`).setAttribute('style', 'font-weight: normal');
+  mtitle.innerHTML = commonPost.ptitle;
+  mbody.innerHTML = commonPost.pdescription;
+  mfooter.setAttribute('href', commonPost.link);
 };
 
-export const feedRender = (watchedState) => {
-  const feed = watchedState.feeds;
+const feedRender = (feed) => {
   const feeds = document.querySelector('div .feeds');
   const input = document.querySelector('input');
   const feedbackElement = document.querySelector('.feedback');
   feeds.innerHTML = '<h2>Feeds</h2><ul class="list-group mb-5"></ul>';
-
   const feedsList = feeds.querySelector('ul');
-  const feedsContent = feed.map(madeLiFeeds);
+  const feedsContent = feed.map(liFeeds);
   feedsList.prepend(...feedsContent);
 
   input.classList.remove('is-invalid');
@@ -51,18 +52,17 @@ export const feedRender = (watchedState) => {
   input.value = null;
 };
 
-export const postsRender = (items) => {
+const postsRender = (items) => {
   const posts = document.querySelector('div .posts');
   if (posts.textContent !== 'Posts') {
     posts.innerHTML = '<h2>Posts</h2><ul class="list-group"></ul>';
   }
   const postsList = posts.querySelector('ul');
-  const postsContent = items.map(madeLiPost);
+  const postsContent = items.map(liPosts);
   postsList.prepend(...postsContent);
 };
 
-export const errorsRender = (watchedState) => {
-  const { error } = watchedState;
+const errorsRender = (error) => {
   const feedbackElement = document.querySelector('.feedback');
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
@@ -70,4 +70,8 @@ export const errorsRender = (watchedState) => {
   feedbackElement.classList.add('text-danger');
   feedbackElement.innerHTML = i18next.t(`errors.${error}`);
   input.value = null;
+};
+
+export {
+  errorsRender, postsRender, feedRender, modalRender,
 };

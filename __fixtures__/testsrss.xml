@@ -1,0 +1,88 @@
+{
+  contents: '<?xml version="1.0" encoding="UTF-8"?>\n
+    <rss version="2.0">\n
+      <channel>\n
+        <title>Новые уроки на Хекслете</title>\n
+        <description>Практические уроки по программированию</description>\n
+        <link>https://ru.hexlet.io/</link>\n
+        <webMaster>info@hexlet.io</webMaster>\n
+        <item>\n
+          <title>Колонки / Основы вёрстки контента</title>\n
+          <guid isPermaLink="false">1883</guid>\n
+          <link>https://ru.hexlet.io/courses/css-content/lessons/columns/theory_unit</link>\n
+          <description>Цель: Познакомиться с CSS Multi-column Layout и узнать о способах его применения</description>\n
+          <pubDate>Fri, 25 Dec 2020 12:26:34 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Объекты-Сущности, Объекты-Значения и внедренные объекты / PHP: Объектно-ориентированный дизайн</title>\n
+          <guid isPermaLink="false">1882</guid>\n
+          <link>https://ru.hexlet.io/courses/php-object-oriented-design/lessons/modeling/theory_unit</link>\n
+          <description>Цель: Познакомиться с основными принципами организации объектов описывающих предметную область</description>\n
+          <pubDate>Thu, 17 Dec 2020 05:45:28 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Списки / Основы вёрстки контента</title>\n
+          <guid isPermaLink="false">1881</guid>\n
+          <link>https://ru.hexlet.io/courses/css-content/lessons/list/theory_unit</link>\n
+          <description>Цель: Изучить виды списков в HTML и способы их стилизации</description>\n
+          <pubDate>Mon, 14 Dec 2020 14:21:31 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Шрифты и работа с ними / Основы вёрстки контента</title>\n
+          <guid isPermaLink="false">1880</guid>\n
+          <link>https://ru.hexlet.io/courses/css-content/lessons/fonts/theory_unit</link>\n
+          <description>Цель: Узнать о способах подключения и выбора шрифтов на странице. Научиться управлять размерами, оформлением и интервалами внутри текста. Изучить обобщённое свойство font</description>\n
+          <pubDate>Mon, 14 Dec 2020 14:21:28 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Стили текста / Основы вёрстки контента</title>\n
+          <guid isPermaLink="false">1878</guid>\n
+          <link>https://ru.hexlet.io/courses/css-content/lessons/text/theory_unit</link>\n
+          <description>Цель: Познакомиться с основными стилями, используемые при оформлении текста</description>\n
+          <pubDate>Mon, 14 Dec 2020 14:21:24 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Введение / Основы вёрстки контента</title>\n
+          <guid isPermaLink="false">1879</guid>\n
+          <link>https://ru.hexlet.io/courses/css-content/lessons/intro/theory_unit</link>\n
+          <description>Цель: Узнать о темах и целях курсах. Познакомиться со структурой уроков и их особенностях</description>\n
+          <pubDate>Mon, 14 Dec 2020 14:21:20 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>HTTP-запросы / JS: Асинхронное программирование</title>\n
+          <guid isPermaLink="false">1877</guid>\n
+          <link>https://ru.hexlet.io/courses/js-asynchronous-programming/lessons/http/theory_unit</link>\n
+          <description>Цель: Научиться пользоваться асинхронностью в прикладных задачах (на примере HTTP-клиента axios)</description>\n
+          <pubDate>Wed, 09 Dec 2020 03:14:25 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Сборщики (Builders) / JS: Объектно-ориентированный дизайн</title>\n
+          <guid isPermaLink="false">1876</guid>\n
+          <link>https://ru.hexlet.io/courses/js-object-oriented-design/lessons/builder/theory_unit</link>\n
+          <description>Цель: Познакомиться с поэтапной сборкой сложных объектов используя композицию и текучий интерфейс</description>\n
+          <pubDate>Tue, 08 Dec 2020 01:20:31 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Отрисовка (рендеринг) состояния / JS: Архитектура фронтенда</title>\n
+          <guid isPermaLink="false">1873</guid>\n
+          <link>https://ru.hexlet.io/courses/js-frontend-architecture/lessons/rendering/theory_unit</link>\n
+          <description>Цель: Рассмотреть разные стратегии обновления представления на основе данных</description>\n
+          <pubDate>Sun, 06 Dec 2020 04:18:57 +0000</pubDate>\n
+        </item>\n
+        <item>\n
+          <title>Состояние отображения (UI State) / JS: Архитектура фронтенда</title>\n
+          <guid isPermaLink="false">1874</guid>\n
+          <link>https://ru.hexlet.io/courses/js-frontend-architecture/lessons/ui-state/theory_unit</link>\n
+          <description>Цель: Познакомиться с понятием UI-состояние и научиться правильно его организовывать не смешивая с данными приложения</description>\n
+          <pubDate>Sun, 06 Dec 2020 04:13:07 +0000</pubDate>\n
+        </item>\n
+      </channel>\n
+    </rss>\n',
+  status: {
+    url: 'https://ru.hexlet.io/lessons.rss',
+    content_type: 'application/rss+xml; charset=utf-8',
+    content_length: 5703,
+    http_code: 200,
+    response_time: 327
+  }
+}

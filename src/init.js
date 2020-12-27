@@ -3,7 +3,7 @@ import set from 'lodash/set';
 import onChange from 'on-change';
 import resources from './i18next.js';
 import {
-  feedRender, modalRender, postsRender, errorsRender,
+  errorsFeedbackRender, postsFormRender, feedFormRender, modalFormRender,
 } from './renders.js';
 import { formStatusHandler, processStateHandler } from './watch.js';
 
@@ -14,7 +14,7 @@ export default () => {
       link: '',
     },
     processState: 'idle',
-    modalState: '',
+    modalId: '',
     error: '',
     links: [],
     feeds: [],
@@ -29,17 +29,17 @@ export default () => {
       case 'processState':
         processStateHandler(value, watchedState);
         break;
-      case 'modalState':
-        modalRender(value, watchedState);
+      case 'modalId':
+        modalFormRender(value, watchedState);
         break;
       case 'feeds':
-        feedRender(value);
+        feedFormRender(value);
         break;
       case 'posts':
-        postsRender(value);
+        postsFormRender(value);
         break;
       case 'error':
-        errorsRender(value);
+        errorsFeedbackRender(value);
         break;
       default:
         break;
@@ -61,7 +61,7 @@ export default () => {
   watchedElements.preview.addEventListener('click', (e) => {
     const { id } = e.target.dataset;
     watchedState.posts.map((post) => (post.id === +id ? set(post, 'font', 'normal') : post));
-    watchedState.modalState = id;
+    watchedState.modalId = id;
   });
 
   i18next.init({

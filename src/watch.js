@@ -51,7 +51,7 @@ const rssDataParser = (url, watchedState) => getter(url)
   })
   .catch((err) => err);
 
-const newRssParser = (url, watchedState) => rssDataParser(url, watchedState)
+const addNewRss = (url, watchedState) => rssDataParser(url, watchedState)
   .then((rssData) => {
     const { feed, commonPosts } = rssData;
     watchedState.posts.unshift(...commonPosts);
@@ -83,7 +83,7 @@ export const processStateHandler = (processState, watchedState) => {
   const url = watchedState.form.link;
   switch (processState) {
     case 'inProgress':
-      newRssParser(url, watchedState);
+      addNewRss(url, watchedState);
       break;
     case 'idle':
       setTimeout(() => runRssWatcher(watchedState), 5000);

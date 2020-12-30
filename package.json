@@ -1,11 +1,8 @@
 {
-  "name": "@stonek79/rss_aggregator",
-  "jest": {
-    "verbose": true
-  },
+  "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "My RSS aggregator",
-  "main": "src/index.js",
+  "main": "bin/index.js",
   "scripts": {
     "build": "rm -rf dist && NODE_ENV=production npx webpack",
     "test": "jest"

@@ -13,13 +13,17 @@ const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const index = path.join(__dirname, '../__fixtures__/index.html');
 const initHtml = fs.readFileSync(index, 'utf-8');
 
-// nock.disableNetConnect();
-
+beforeAll(() => {
+  nock.disableNetConnect();
+});
+afterAll(() => {
+  nock.enableNetConnect();
+});
 const tags = {};
 
 beforeEach(async () => {
   document.body.innerHTML = initHtml;
-  await start();
+  start();
   tags.input = screen.getByPlaceholderText('RSS link');
   tags.submit = screen.getByLabelText('add');
 });
@@ -34,9 +38,9 @@ test('addRSS', async () => {
 
   // const feedback = document.querySelector('.feedback');
   // const feeds = document.querySelector('.feeds');
+  // console.log('feeds', feedback.innerHTML, feeds.innerHTML);
 
-  await waitFor(() => {
-    // console.log('feeds', feedback.innerHTML, feeds.innerHTML);
+  waitFor(() => {
     const data = screen.getByText(/RSS has been loaded/i);
     expect(data).toBeInTheDocument();
   });
@@ -49,7 +53,8 @@ test('already exist', async () => {
     .persist()
     .get('/')
     .reply(200, rssData);
-  await waitFor(() => {
+
+  waitFor(() => {
     const data = screen.getByText(/RSS has been loaded/i);
     expect(data).toBeInTheDocument();
   });
@@ -57,7 +62,7 @@ test('already exist', async () => {
   userEvent.type(tags.input, rssUrl);
   userEvent.click(tags.submit);
 
-  await waitFor(() => {
+  waitFor(() => {
     const data = screen.getByText(/RSS already exist/i);
     expect(data).toBeInTheDocument();
   });

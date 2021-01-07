@@ -1,13 +1,22 @@
 import i18next from 'i18next';
-import set from 'lodash/set';
 import onChange from 'on-change';
-import resources from './i18next.js';
+import resources from './resources.js';
 import {
   errorsFeedbackRender, postsFormRender, feedFormRender, modalFormRender,
 } from './renders.js';
-import { formStatusHandler, processStateHandler } from './watch.js';
+import {
+  formStatusHandler, addNewRss, runRssWatcher, madeNormalLinkFont,
+} from './watch.js';
+import getter from './getter.js';
 
 export default () => {
+  i18next
+    .init({
+      lng: 'en',
+      debug: true,
+      resources,
+    });
+
   const state = {
     form: {
       status: 'filling',
@@ -23,14 +32,8 @@ export default () => {
 
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
-      case 'form.status':
-        formStatusHandler(value, watchedState);
-        break;
-      case 'processState':
-        processStateHandler(value, watchedState);
-        break;
       case 'modalId':
-        modalFormRender(value, watchedState);
+        modalFormRender(value, state.posts);
         break;
       case 'feeds':
         feedFormRender(value);
@@ -54,20 +57,33 @@ export default () => {
 
   watchedElements.button.addEventListener('click', (e) => {
     e.preventDefault();
-    watchedState.form.link = watchedElements.input.value;
+    const commonLink = watchedElements.input.value;
+    watchedState.form.link = commonLink;
     watchedState.form.status = 'sending';
+    formStatusHandler(commonLink, watchedState);
+
+    if (watchedState.processState !== 'inProgress') return;
+    getter(commonLink)
+      .then((data) => {
+        if (data.name === 'Error') {
+          throw new Error(data.message);
+        }
+        addNewRss(commonLink, watchedState, data);
+      })
+      .catch((err) => {
+        watchedState.error = err.message;
+        watchedState.processState = 'idle';
+      });
   });
 
   watchedElements.preview.addEventListener('click', (e) => {
     const { id } = e.target.dataset;
-    watchedState.posts.map((post) => (post.id === +id ? set(post, 'font', 'normal') : post));
+    if (!id) return;
+    const { posts } = watchedState;
+    const postsWithNormalFontLink = madeNormalLinkFont(id, posts);
+    watchedState.posts = postsWithNormalFontLink;
     watchedState.modalId = id;
   });
 
-  i18next.init({
-    lng: 'en',
-    debug: true,
-    resources,
-  })
-    .then((t) => { t(); });
+  setTimeout(() => runRssWatcher(watchedState), 5000);
 };

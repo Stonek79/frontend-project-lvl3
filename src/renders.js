@@ -16,7 +16,7 @@ const tagLiPosts = (post) => {
   } = post;
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
-  li.innerHTML = `<a style='font-weight: ${font}' href=${link} data-id=${id} target='_blank'>
+  li.innerHTML = `<a href=${link} class='fw-${font} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>
       ${ptitle}
     </a>
   <button type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">
@@ -25,8 +25,7 @@ const tagLiPosts = (post) => {
   return li;
 };
 
-const modalFormRender = (id, watchedState) => {
-  const { posts } = watchedState;
+const modalFormRender = (id, posts) => {
   const commonPost = [...posts].filter((post) => post.id === +id)[0];
   const mtitle = document.querySelector('.modal-title');
   const mbody = document.querySelector('.modal-body');
@@ -73,5 +72,5 @@ const errorsFeedbackRender = (error) => {
 };
 
 export {
-  errorsFeedbackRender, postsFormRender, feedFormRender, modalFormRender,
+  errorsFeedbackRender, feedFormRender, modalFormRender, postsFormRender,
 };

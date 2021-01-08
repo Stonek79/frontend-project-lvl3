@@ -83,6 +83,7 @@ export default () => {
     const postsWithNormalFontLink = madeNormalLinkFont(id, posts);
     watchedState.posts = postsWithNormalFontLink;
     watchedState.modalId = id;
+    e.preventDefault();
   });
 
   setTimeout(() => runRssWatcher(watchedState), 5000);

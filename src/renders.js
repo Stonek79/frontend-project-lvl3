@@ -2,7 +2,7 @@
 
 import i18next from 'i18next';
 
-const tagLiFeeds = (feed) => {
+const madeTagLiFeeds = (feed) => {
   const { ftitle, fdescription } = feed;
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item');
@@ -10,7 +10,7 @@ const tagLiFeeds = (feed) => {
   return li;
 };
 
-const tagLiPosts = (post) => {
+const madeTagLiPosts = (post) => {
   const {
     id, ptitle, link, font,
   } = post;
@@ -25,7 +25,7 @@ const tagLiPosts = (post) => {
   return li;
 };
 
-const modalFormRender = (id, posts) => {
+const modalRender = (id, posts) => {
   const commonPost = [...posts].filter((post) => post.id === +id)[0];
   const mtitle = document.querySelector('.modal-title');
   const mbody = document.querySelector('.modal-body');
@@ -35,13 +35,13 @@ const modalFormRender = (id, posts) => {
   mfooter.setAttribute('href', commonPost.link);
 };
 
-const feedFormRender = (feed) => {
+const feedRender = (feed) => {
   const feeds = document.querySelector('div .feeds');
   const input = document.querySelector('input');
   const feedbackElement = document.querySelector('.feedback');
   feeds.innerHTML = '<h2>Feeds</h2><ul class="list-group mb-5"></ul>';
   const feedsList = feeds.querySelector('ul');
-  const feedsContent = feed.map(tagLiFeeds);
+  const feedsContent = feed.map(madeTagLiFeeds);
   feedsList.prepend(...feedsContent);
 
   input.classList.remove('is-invalid');
@@ -51,17 +51,18 @@ const feedFormRender = (feed) => {
   input.value = null;
 };
 
-const postsFormRender = (items) => {
+const postsRender = (items) => {
   const posts = document.querySelector('div .posts');
   if (posts.textContent !== 'Posts') {
     posts.innerHTML = '<h2>Posts</h2><ul class="list-group"></ul>';
   }
   const postsList = posts.querySelector('ul');
-  const postsContent = items.map(tagLiPosts);
+  const postsContent = items.map(madeTagLiPosts);
   postsList.prepend(...postsContent);
 };
 
-const errorsFeedbackRender = (error) => {
+const errorsRender = (errors) => {
+  const error = errors[0];
   const feedbackElement = document.querySelector('.feedback');
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
@@ -72,5 +73,5 @@ const errorsFeedbackRender = (error) => {
 };
 
 export {
-  errorsFeedbackRender, feedFormRender, modalFormRender, postsFormRender,
+  errorsRender, feedRender, modalRender, postsRender,
 };

@@ -2,12 +2,13 @@ import i18next from 'i18next';
 import onChange from 'on-change';
 import resources from './resources.js';
 import {
-  errorsFeedbackRender, postsFormRender, feedFormRender, modalFormRender,
+  errorsRender, postsRender, feedRender, modalRender,
 } from './renders.js';
 import {
-  formStatusHandler, addNewRss, runRssWatcher, madeNormalLinkFont,
+  formStatusErrorCatcher, addedFeedsWatcher, madeNormalLinkFont,
 } from './watch.js';
-import getter from './getter.js';
+import getRssData from './getter.js';
+import parser from './parser.js';
 
 export default () => {
   const state = {
@@ -16,8 +17,8 @@ export default () => {
       link: '',
     },
     processState: 'idle',
-    modalId: '',
-    error: '',
+    openedModalId: '',
+    error: [],
     links: [],
     feeds: [],
     posts: [],
@@ -32,23 +33,23 @@ export default () => {
   i18next
     .init({
       lng: 'en',
-      debug: true,
+      debug: false,
       resources,
     })
     .then(() => {
       const watchedState = onChange(state, (path, value) => {
         switch (path) {
-          case 'modalId':
-            modalFormRender(value, state.posts);
+          case 'openedModalId':
+            modalRender(value, state.posts);
             break;
           case 'feeds':
-            feedFormRender(value);
+            feedRender(value);
             break;
           case 'posts':
-            postsFormRender(value);
+            postsRender(value);
             break;
           case 'error':
-            errorsFeedbackRender(value);
+            errorsRender(value);
             break;
           default:
             break;
@@ -60,19 +61,23 @@ export default () => {
         const commonLink = watchedElements.input.value;
         watchedState.form.link = commonLink;
         watchedState.form.status = 'sending';
-        formStatusHandler(commonLink, watchedState);
+        formStatusErrorCatcher(commonLink, watchedState);
 
         if (watchedState.processState !== 'inProgress') return;
-        getter(commonLink)
+
+        getRssData(commonLink)
           .then((data) => {
-            if (data.name === 'Error') {
-              throw new Error(data.message);
-            }
-            addNewRss(commonLink, watchedState, data);
+            const commonId = watchedState.posts.length === 0 ? 1
+              : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
+            const { feed, commonPosts } = parser(data.contents, commonId);
+            watchedState.posts.unshift(...commonPosts);
+            watchedState.feeds.unshift(feed);
+            watchedState.links.push(commonLink);
+            watchedState.processState = 'idle';
           })
           .catch((err) => {
-            watchedState.error = err.message;
             watchedState.processState = 'idle';
+            watchedState.error.unshift(err.message);
           });
       });
 
@@ -82,10 +87,10 @@ export default () => {
         const { posts } = watchedState;
         const postsWithNormalFontLink = madeNormalLinkFont(id, posts);
         watchedState.posts = postsWithNormalFontLink;
-        watchedState.modalId = id;
+        watchedState.openedModalId = id;
         e.preventDefault();
       });
 
-      setTimeout(() => runRssWatcher(watchedState), 5000);
+      setTimeout(() => addedFeedsWatcher(watchedState), 5000);
     });
 };

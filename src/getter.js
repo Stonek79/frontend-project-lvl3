@@ -10,4 +10,3 @@ export default (url) => axios.get(`${proxy}/get?url=${url}`)
     }
     return response.data;
   });
-// .catch((e) => e) // (e.message === 'mustHaveRSS' ? e : Error('netError')));

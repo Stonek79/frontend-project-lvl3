@@ -4,19 +4,15 @@ import resources from './resources.js';
 import {
   errorsRender, postsRender, feedRender, modalRender,
 } from './renders.js';
-import {
-  formStatusErrorCatcher, addedFeedsWatcher, madeNormalLinkFont,
-} from './watch.js';
+import { addedFeedsWatcher, madeNormalLinkFont } from './watch.js';
 import getRssData from './getter.js';
 import parser from './parser.js';
 
 export default () => {
   const state = {
     form: {
-      status: 'filling',
       link: '',
     },
-    processState: 'idle',
     openedModalId: '',
     error: [],
     links: [],
@@ -25,9 +21,8 @@ export default () => {
   };
 
   const watchedElements = {
-    button: document.querySelector('[type="submit"]'),
-    preview: document.querySelector('div .posts'),
-    input: document.querySelector('input'),
+    form: document.querySelector('.rss-form'),
+    postsContainer: document.querySelector('div .posts'),
   };
 
   i18next
@@ -56,39 +51,37 @@ export default () => {
         }
       });
 
-      watchedElements.button.addEventListener('click', (e) => {
+      watchedElements.form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const commonLink = watchedElements.input.value;
+        const formData = new FormData(e.target);
+        const commonLink = formData.get('url').toString();
         watchedState.form.link = commonLink;
-        watchedState.form.status = 'sending';
-        formStatusErrorCatcher(commonLink, watchedState);
+        const { links } = watchedState;
+        const hasRss = links.includes(commonLink);
 
-        if (watchedState.processState !== 'inProgress') return;
-
-        getRssData(commonLink)
-          .then((data) => {
-            const commonId = watchedState.posts.length === 0 ? 1
-              : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
-            const { feed, commonPosts } = parser(data.contents, commonId);
-            watchedState.posts.unshift(...commonPosts);
-            watchedState.feeds.unshift(feed);
-            watchedState.links.push(commonLink);
-            watchedState.processState = 'idle';
-          })
-          .catch((err) => {
-            watchedState.processState = 'idle';
-            watchedState.error.unshift(err.message);
-          });
+        if (hasRss) {
+          watchedState.error.unshift('alreadyExist');
+        } else {
+          getRssData(commonLink)
+            .then()
+            .then((data) => {
+              const commonId = watchedState.posts.length === 0 ? 1
+                : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
+              const { feed, commonPosts } = parser(data.contents, commonId);
+              watchedState.posts.unshift(...commonPosts);
+              watchedState.feeds.unshift(feed);
+              watchedState.links.push(commonLink);
+            })
+            .catch((err) => watchedState.error.unshift(err.message));
+        }
       });
 
-      watchedElements.preview.addEventListener('click', (e) => {
+      watchedElements.postsContainer.addEventListener('click', (e) => {
         const { id } = e.target.dataset;
         if (!id) return;
         const { posts } = watchedState;
-        const postsWithNormalFontLink = madeNormalLinkFont(id, posts);
-        watchedState.posts = postsWithNormalFontLink;
+        watchedState.posts = madeNormalLinkFont(id, posts);
         watchedState.openedModalId = id;
-        e.preventDefault();
       });
 
       setTimeout(() => addedFeedsWatcher(watchedState), 5000);

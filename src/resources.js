@@ -7,7 +7,7 @@ export default {
         alreadyExist: 'RSS already exist',
         netError: 'Network error',
       },
-      loaded: 'RSS has been loaded',
+      loaded: 'Rss has been loaded',
     },
   },
 };

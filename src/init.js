@@ -55,13 +55,10 @@ export default () => {
         }
       });
 
-      watchedElements.form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const commonLink = formData.get('url').toString();
+      const isValid = (link) => {
         const { links } = watchedState;
-        const hasRss = links.includes(commonLink);
-        const isValidUrl = schema.isValidSync(commonLink);
+        const hasRss = links.includes(link);
+        const isValidUrl = schema.isValidSync(link);
 
         if (!isValidUrl) {
           watchedState.form.valid = false;
@@ -73,6 +70,13 @@ export default () => {
           watchedState.form.valid = true;
           watchedState.processState = 'inProgress';
         }
+      };
+
+      watchedElements.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const commonLink = formData.get('url').toString();
+        isValid(commonLink);
 
         if (!watchedState.form.valid) return;
 

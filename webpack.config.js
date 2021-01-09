@@ -34,7 +34,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'RSS aggregator',
-      template: path.resolve(__dirname, './src/index.html'),
+      template: path.resolve(__dirname, './index.html'),
       filename: 'index.html',
     }),
     new MiniCssExtractPlugin({

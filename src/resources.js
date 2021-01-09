@@ -5,7 +5,7 @@ export default {
         mustValid: 'Must be valid URL',
         mustHaveRSS: 'This source doesn\'t contain valid rss',
         alreadyExist: 'RSS already exist',
-        netError: 'Network error',
+        no_internet: 'Network error',
       },
       loaded: 'Rss has been loaded',
     },

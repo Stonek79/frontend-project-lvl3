@@ -19,7 +19,7 @@ const madeTagLiPosts = (post) => {
   li.innerHTML = `<a href=${link} class='fw-${font} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>
       ${ptitle}
     </a>
-  <button type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">
+  <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">
     Preview
   </button>`;
   return li;

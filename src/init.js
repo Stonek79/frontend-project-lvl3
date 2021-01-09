@@ -1,3 +1,4 @@
+import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import resources from './resources.js';
@@ -11,8 +12,9 @@ import parser from './parser.js';
 export default () => {
   const state = {
     form: {
-      link: '',
+      valid: true,
     },
+    processState: 'idle',
     openedModalId: '',
     error: [],
     links: [],
@@ -24,6 +26,8 @@ export default () => {
     form: document.querySelector('.rss-form'),
     postsContainer: document.querySelector('div .posts'),
   };
+
+  const schema = yup.string().url();
 
   i18next
     .init({
@@ -55,25 +59,39 @@ export default () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const commonLink = formData.get('url').toString();
-        watchedState.form.link = commonLink;
         const { links } = watchedState;
         const hasRss = links.includes(commonLink);
+        const isValidUrl = schema.isValidSync(commonLink);
 
-        if (hasRss) {
+        if (!isValidUrl) {
+          watchedState.form.valid = false;
+          watchedState.error.unshift('mustValid');
+        } else if (hasRss) {
+          watchedState.form.valid = false;
           watchedState.error.unshift('alreadyExist');
         } else {
-          getRssData(commonLink)
-            .then()
-            .then((data) => {
-              const commonId = watchedState.posts.length === 0 ? 1
-                : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
-              const { feed, commonPosts } = parser(data.contents, commonId);
-              watchedState.posts.unshift(...commonPosts);
-              watchedState.feeds.unshift(feed);
-              watchedState.links.push(commonLink);
-            })
-            .catch((err) => watchedState.error.unshift(err.message));
+          watchedState.form.valid = true;
+          watchedState.processState = 'inProgress';
         }
+
+        if (!watchedState.form.valid) return;
+
+        getRssData(commonLink)
+          .then((data) => {
+            const commonId = watchedState.posts.length === 0 ? 1
+              : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
+
+            const { feed, commonPosts } = parser(data.contents, commonId);
+
+            watchedState.posts.unshift(...commonPosts);
+            watchedState.feeds.unshift(feed);
+            watchedState.links.push(commonLink);
+            watchedState.processState = 'idle';
+          })
+          .catch((err) => {
+            watchedState.error.unshift(err.message);
+            watchedState.processState = 'idle';
+          });
       });
 
       watchedElements.postsContainer.addEventListener('click', (e) => {

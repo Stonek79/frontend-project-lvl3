@@ -6,7 +6,6 @@ export default {
         mustHaveRSS: 'This source doesn\'t contain valid rss',
         alreadyExist: 'RSS already exist',
         netError: 'Network error',
-        emptyInput: 'Please, add RSS link',
       },
       loaded: 'RSS has been loaded',
     },

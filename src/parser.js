@@ -8,7 +8,7 @@ export default (rssData, commonId, commonLink) => {
     }
   };
   catchDataError(parsedRssData);
-  let idCount = commonId + 1;
+  let idCount = commonId;
   const feedId = idCount;
   const ftitle = parsedRssData.querySelector('channel > title').textContent;
   const fdescription = parsedRssData.querySelector('channel > description').textContent;

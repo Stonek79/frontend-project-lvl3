@@ -1,20 +1,22 @@
 /* eslint-disable no-param-reassign, no-console  */
 
 import set from 'lodash/set';
+import difference from 'lodash/difference';
 import parser from './parser.js';
 import getRssData from './getter.js';
 
 const addedFeedsWatcher = (watchedState) => {
-  const { links, posts } = watchedState;
+  const { feeds, posts } = watchedState;
+  const links = feeds.map((feed) => feed.commonLink);
   const postsPromises = links.map((link) => {
-    const postsTime = [...posts].flatMap((post) => post.ptime);
-    const latestPostTime = Math.max(...postsTime);
-    const lastId = Math.max(...watchedState.posts.map((post) => post.id)) + 1;
+    const commonPosts = [...posts].flatMap((post) => post.link);
+    const lastId = feeds.length + posts.length;
     return getRssData(link)
-      .then((commonRssLinkData) => parser(commonRssLinkData.contents, lastId[0]))
+      .then((commonRssLinkData) => parser(commonRssLinkData.contents, lastId, link))
       .then((rssParsedData) => {
-        const { commonPosts } = rssParsedData;
-        const latestPosts = [...commonPosts].filter((post) => post.ptime > latestPostTime);
+        const newParsedPosts = rssParsedData.posts;
+        const newPosts = [...newParsedPosts].flatMap((post) => post.link);
+        const latestPosts = difference(newPosts, commonPosts);
         watchedState.posts.unshift(...latestPosts);
       });
   });
@@ -22,7 +24,7 @@ const addedFeedsWatcher = (watchedState) => {
 };
 
 const madeNormalLinkFont = (id, posts) => posts
-  .map((post) => (post.id === +id ? set(post, 'font', 'normal') : post));
+  .map((post) => (post.id === +id ? set(post, 'isReviewed', true) : post));
 
 export {
   madeNormalLinkFont, addedFeedsWatcher,

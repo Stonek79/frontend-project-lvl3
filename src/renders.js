@@ -12,11 +12,12 @@ const madeTagLiFeeds = (feed) => {
 
 const madeTagLiPosts = (post) => {
   const {
-    id, ptitle, link, font,
+    id, ptitle, link, isReviewed,
   } = post;
+  const fontDecoration = isReviewed ? 'normal' : 'bold';
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
-  li.innerHTML = `<a href=${link} class='fw-${font} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>
+  li.innerHTML = `<a href=${link} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>
       ${ptitle}
     </a>
   <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">
@@ -61,17 +62,33 @@ const postsRender = (items) => {
   postsList.prepend(...postsContent);
 };
 
-const errorsRender = (errors) => {
-  const error = errors[0];
+const errorsRender = (error) => {
   const feedbackElement = document.querySelector('.feedback');
   const input = document.querySelector('input');
+  input.removeAttribute('readonly');
   input.classList.add('is-invalid');
   feedbackElement.classList.remove('text-success');
   feedbackElement.classList.add('text-danger');
   feedbackElement.innerHTML = i18next.t(`errors.${error}`);
-  input.value = null;
+};
+
+const processRender = (fbvalue) => {
+  const feedbackElement = document.querySelector('.feedback');
+  const input = document.querySelector('input');
+  if (fbvalue === 'loading') {
+    input.classList.add('is-invalid');
+    input.setAttribute('readonly', 'readonly');
+    feedbackElement.classList.remove('text-success');
+    feedbackElement.classList.remove('text-danger');
+    feedbackElement.innerHTML = null;
+  } else {
+    input.removeAttribute('readonly');
+    input.classList.remove('is-invalid');
+    feedbackElement.classList.add('text-success');
+    feedbackElement.innerHTML = i18next.t('loaded');
+  }
 };
 
 export {
-  errorsRender, feedRender, modalRender, postsRender,
+  errorsRender, feedRender, modalRender, postsRender, processRender,
 };

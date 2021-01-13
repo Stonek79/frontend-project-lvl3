@@ -1,6 +1,4 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 
 module.exports = {
@@ -34,12 +32,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'RSS aggregator',
-      template: path.resolve(__dirname, 'index.html'),
-      filename: 'index.html',
+      template: path.resolve(__dirname, './index.html'),
     }),
-    new MiniCssExtractPlugin({
-      filename: 'slyles.css',
-    }),
-    new CleanWebpackPlugin(),
   ],
 };

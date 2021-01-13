@@ -1,9 +1,11 @@
+/* eslint-disable no-param-reassign */
 import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
+import { ValidationError } from 'yup';
 import resources from './resources.js';
 import {
-  errorsRender, postsRender, feedRender, modalRender,
+  errorsRender, postsRender, feedRender, modalRender, processRender,
 } from './renders.js';
 import { addedFeedsWatcher, madeNormalLinkFont } from './watch.js';
 import getRssData from './getter.js';
@@ -12,12 +14,15 @@ import parser from './parser.js';
 export default () => {
   const state = {
     form: {
+      state: 'filling',
       valid: true,
+      error: '',
     },
-    processState: 'idle',
-    openedModalId: '',
-    error: [],
-    links: [],
+    process: {
+      status: 'idle',
+      error: '',
+    },
+    reviewedModalId: '',
     feeds: [],
     posts: [],
   };
@@ -27,7 +32,27 @@ export default () => {
     postsContainer: document.querySelector('div .posts'),
   };
 
-  const schema = yup.string().url();
+  const processHandler = (processState) => {
+    const { status, error } = processState.process;
+    switch (status) {
+      case 'failed':
+        errorsRender(error);
+        break;
+      case 'idle':
+        processRender('loaded');
+        break;
+      case 'loading':
+        processRender('loading');
+        break;
+      default:
+        throw new Error(`Unknown processState: ${status}`);
+    }
+  };
+
+  const formStateHandler = (form) => {
+    const { valid, error } = form.form;
+    return valid ? null : errorsRender(error);
+  };
 
   i18next
     .init({
@@ -38,7 +63,10 @@ export default () => {
     .then(() => {
       const watchedState = onChange(state, (path, value) => {
         switch (path) {
-          case 'openedModalId':
+          case 'process.status':
+            processHandler(state);
+            break;
+          case 'reviewedModalId':
             modalRender(value, state.posts);
             break;
           case 'feeds':
@@ -47,55 +75,57 @@ export default () => {
           case 'posts':
             postsRender(value);
             break;
-          case 'error':
-            errorsRender(value);
+          case 'form':
+            formStateHandler(state);
             break;
           default:
             break;
         }
       });
 
-      const isValid = (link) => {
-        const { links } = watchedState;
-        const hasRss = links.includes(link);
-        const isValidUrl = schema.isValidSync(link);
-
-        if (!isValidUrl) {
-          watchedState.form.valid = false;
-          watchedState.error.unshift('mustValid');
-        } else if (hasRss) {
-          watchedState.form.valid = false;
-          watchedState.error.unshift('alreadyExist');
-        } else {
-          watchedState.form.valid = true;
-          watchedState.processState = 'inProgress';
+      const validateLink = (link, feeds) => {
+        const links = [...feeds].map((feed) => feed.commonLink);
+        const schema = yup.string().url().notOneOf(links);
+        try {
+          return schema.validateSync(link);
+        } catch (err) {
+          return err;
         }
+      };
+
+      const formEventHandler = (watcher, url) => {
+        watcher.process.status = 'loading';
+        getRssData(url)
+          .then((data) => {
+            const commonId = watcher.feeds.length + watcher.posts.length + 1;
+
+            const { feed, posts } = parser(data.contents, commonId, url);
+
+            watcher.posts.unshift(...posts);
+            watcher.feeds.unshift(feed);
+            watcher.form = { state: 'filling', valid: true, error: null };
+            watcher.process.status = 'idle';
+          })
+          .catch((err) => {
+            watcher.process.error = err.message;
+            watcher.process.status = 'failed';
+          });
       };
 
       watchedElements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const commonLink = formData.get('url').toString();
-        isValid(commonLink);
+        const commonLink = formData.get('url');
+        const valid = validateLink(commonLink, watchedState.feeds);
+        if (valid instanceof ValidationError) {
+          const err = valid.message.includes('valid') ? 'mustValid' : 'alreadyExist';
+          watchedState.form = { state: 'failed', valid: false, error: err };
+        } else {
+          watchedState.form = { state: 'filling', valid: true, error: null };
+        }
 
         if (!watchedState.form.valid) return;
-
-        getRssData(commonLink)
-          .then((data) => {
-            const commonId = watchedState.posts.length === 0 ? 1
-              : Math.max(...watchedState.posts.map((post) => post.id)) + 1;
-
-            const { feed, commonPosts } = parser(data.contents, commonId);
-
-            watchedState.posts.unshift(...commonPosts);
-            watchedState.feeds.unshift(feed);
-            watchedState.links.push(commonLink);
-            watchedState.processState = 'idle';
-          })
-          .catch((err) => {
-            watchedState.error.unshift(err.message);
-            watchedState.processState = 'idle';
-          });
+        formEventHandler(watchedState, commonLink);
       });
 
       watchedElements.postsContainer.addEventListener('click', (e) => {
@@ -103,7 +133,7 @@ export default () => {
         if (!id) return;
         const { posts } = watchedState;
         watchedState.posts = madeNormalLinkFont(id, posts);
-        watchedState.openedModalId = id;
+        watchedState.reviewedModalId = id;
       });
 
       setTimeout(() => addedFeedsWatcher(watchedState), 5000);

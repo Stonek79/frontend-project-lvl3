@@ -65,7 +65,7 @@ export default () => {
         watcher.process.status = 'idle';
       })
       .catch((err) => {
-        watcher.process.error = err.message;
+        watcher.process.error = err.message === 'Network Error' ? 'neterror' : err.message;
         watcher.process.status = 'failed';
       });
   };
@@ -82,10 +82,7 @@ export default () => {
         watcher.posts.unshift(...diffPosts);
       }));
     Promise.all(postsPromises).finally(setTimeout(() => watchAddedFeeds(watcher), 5000))
-      .catch((err) => {
-        watcher.process.error = err.message;
-        watcher.process.status = 'failed';
-      });
+      .catch((err) => console.error(err));
   };
 
   const validateUrl = (url, feeds) => {

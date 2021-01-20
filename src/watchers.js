@@ -17,7 +17,7 @@ const makeLiPosts = (post, viewed) => {
   const fontDecoration = viewed.has(id) ? 'normal' : 'bold';
   const li = `<li class="list-group-item d-flex justify-content-between align-items-start">
     <a href=${postLink} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>${postTitle}</a>
-    <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">Preview</button>
+    <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">${i18next.t('buttons.veiw')}</button>
   </li>`;
   return li;
 };
@@ -36,7 +36,7 @@ const handleModalView = (state) => {
 
 const handleFeedsView = (feed, domElements) => {
   const { feeds } = domElements;
-  feeds.innerHTML = '<h2>Feeds</h2><ul class="list-group mb-5"></ul>';
+  feeds.innerHTML = `<h2>${i18next.t('headings.feeds')}</h2><ul class="list-group mb-5"></ul>`;
   const feedsList = feeds.querySelector('ul');
   const feedsContent = feed.map(makeLiFeeds).join('');
   feedsList.innerHTML = feedsContent;
@@ -47,7 +47,7 @@ const handlePostsView = (state, domElements) => {
   const { reviewed } = state.modalReviewed;
   const { posts } = domElements;
   if (posts.textContent !== 'Posts') {
-    posts.innerHTML = '<h2>Posts</h2><ul class="list-group"></ul>';
+    posts.innerHTML = `<h2>${i18next.t('headings.posts')}</h2><ul class="list-group"></ul>`;
   }
   const postsList = posts.querySelector('ul');
   const postsContent = items.map((item) => makeLiPosts(item, reviewed)).join('');

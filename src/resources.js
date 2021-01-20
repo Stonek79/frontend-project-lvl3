@@ -9,6 +9,13 @@ export default {
         neterror: 'Network error',
       },
       loaded: 'Rss has been loaded',
+      headings: {
+        feeds: 'Feeds',
+        posts: 'Posts',
+      },
+      buttons: {
+        veiw: 'Preview',
+      },
     },
   },
 };

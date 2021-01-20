@@ -1,134 +1,129 @@
 /* eslint-disable no-param-reassign, no-console  */
-
-import find from 'lodash/find';
-import uniqueId from 'lodash/uniqueId';
-import differenceBy from 'lodash/differenceBy';
 import onChange from 'on-change';
-import getParsedRssData from './parser.js';
-import getRssData from './getter.js';
-import {
-  handleProcessStatus, madeErrorView, madeFeedsView, madeModalView, madePostsView,
-} from './renders.js';
+import i18next from 'i18next';
+import find from 'lodash/find';
 
-const state = {
-  form: {
-    status: 'filling',
-    valid: true,
-    error: '',
-  },
-  process: {
-    status: 'idle',
-    error: '',
-  },
-  reviewedModalId: {
-    reviewed: [],
-    id: '',
-  },
-  feeds: [],
-  posts: [],
+const makeLiFeeds = (feed) => {
+  const { feedTitle, feedDescription } = feed;
+  const li = `<li class="list-group-item">
+    <h3>${feedTitle}</h3>
+    <p>${feedDescription}</p>
+  </li>`;
+  return li;
 };
 
-const handleFormState = (form) => {
+const makeLiPosts = (post, viewed) => {
+  const { id, postTitle, postLink } = post;
+  const fontDecoration = viewed.has(id) ? 'normal' : 'bold';
+  const li = `<li class="list-group-item d-flex justify-content-between align-items-start">
+    <a href=${postLink} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>${postTitle}</a>
+    <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">Preview</button>
+  </li>`;
+  return li;
+};
+
+const handleModalView = (state) => {
+  const { posts } = state;
+  const { id } = state.modalId;
+  const commonPost = find(posts, ['id', id]);
+  const mtitle = document.querySelector('.modal-title');
+  const mbody = document.querySelector('.modal-body');
+  const mfooter = document.querySelector('.full-article');
+  mtitle.textContent = commonPost.postTitle;
+  mbody.textContent = commonPost.postDescription;
+  mfooter.href = commonPost.postLink;
+};
+
+const handleFeedsView = (feed, domElements) => {
+  const { feeds } = domElements;
+  feeds.innerHTML = '<h2>Feeds</h2><ul class="list-group mb-5"></ul>';
+  const feedsList = feeds.querySelector('ul');
+  const feedsContent = feed.map(makeLiFeeds).join('');
+  feedsList.innerHTML = feedsContent;
+};
+
+const handlePostsView = (state, domElements) => {
+  const items = state.posts;
+  const { reviewed } = state.modalReviewed;
+  const { posts } = domElements;
+  if (posts.textContent !== 'Posts') {
+    posts.innerHTML = '<h2>Posts</h2><ul class="list-group"></ul>';
+  }
+  const postsList = posts.querySelector('ul');
+  const postsContent = items.map((item) => makeLiPosts(item, reviewed)).join('');
+  postsList.innerHTML = postsContent;
+};
+
+const handleError = (error, domElements) => {
+  const { feedbackElement, input } = domElements;
+  input.removeAttribute('readonly');
+  input.classList.add('is-invalid');
+  feedbackElement.classList.remove('text-success');
+  feedbackElement.classList.add('text-danger');
+  feedbackElement.textContent = i18next.t(`errors.${error}`);
+};
+
+const handleProcessStatus = (status, domElements) => {
+  const { feedbackElement, input } = domElements;
+
+  if (status === 'loading') {
+    input.classList.add('is-invalid');
+    input.setAttribute('readonly', 'readonly');
+    feedbackElement.classList.remove('text-success', 'text-danger');
+    feedbackElement.innerHTML = null;
+  } else {
+    input.removeAttribute('readonly');
+    input.classList.remove('is-invalid');
+    feedbackElement.classList.add('text-success');
+    feedbackElement.textContent = i18next.t('loaded');
+    input.value = null;
+  }
+};
+
+const handleFormState = (form, domElements) => {
   const { valid, error } = form.form;
-  return valid ? null : madeErrorView(error);
+  return valid ? null : handleError(error, domElements);
 };
 
-const handleProcessState = (processState) => {
+const handleProcessState = (processState, domElements) => {
   const { status, error } = processState.process;
   switch (status) {
     case 'failed':
-      madeErrorView(error);
+      handleError(error, domElements);
       break;
     case 'idle':
-      handleProcessStatus('loaded');
+      handleProcessStatus('loaded', domElements);
       break;
     case 'loading':
-      madeErrorView('loading');
+      handleProcessStatus('loading', domElements);
       break;
     default:
       throw new Error(`Unknown processState: ${status}`);
   }
 };
 
-const watchedState = onChange(state, (path, value) => {
+// eslint-disable-next-line import/prefer-default-export
+export const watchedState = (state, domElements) => onChange(state, (path, value) => {
   switch (path) {
     case 'process.status':
-      handleProcessState(state);
+      handleProcessState(state, domElements);
       break;
-    case 'reviewedModalId.id':
-      madeModalView(state);
+    case 'modalId.id':
+      handleModalView(state);
       break;
-    case 'reviewedModalId.reviewed':
-      madePostsView(state);
+    case 'modalReviewed.reviewed':
+      handlePostsView(state, domElements);
       break;
     case 'feeds':
-      madeFeedsView(value);
+      handleFeedsView(value, domElements);
       break;
     case 'posts':
-      madePostsView(state);
+      handlePostsView(state, domElements);
       break;
     case 'form':
-      handleFormState(state);
+      handleFormState(state, domElements);
       break;
     default:
       break;
   }
 });
-
-const getPostData = (item) => {
-  const title = item.querySelector('title').textContent;
-  const description = item.querySelector('description').textContent;
-  const link = item.querySelector('link').textContent;
-  return { title, description, link };
-};
-
-const handleFormEvent = (watcher, url) => {
-  watcher.process.status = 'loading';
-  getRssData(url)
-    .then((data) => {
-      const parsed = getParsedRssData(data.contents);
-
-      const feed = {
-        url, feedId: uniqueId(), title: parsed.title, description: parsed.description,
-      };
-
-      const posts = [...parsed.items]
-        .map((post) => ({
-          linkedId: feed.feedId, id: uniqueId(), ...getPostData(post),
-        }));
-
-      watcher.posts.unshift(...posts);
-      watcher.feeds.unshift(feed);
-      watcher.form = { status: 'filling', valid: true, error: null };
-      watcher.process.status = 'idle';
-    })
-    .catch((err) => {
-      watcher.process.error = err.message;
-      watcher.process.status = 'failed';
-    });
-};
-
-const watchAddedFeeds = (watcher) => {
-  const { feeds, posts } = watcher;
-  const links = feeds.map((feed) => feed.url);
-  const postsPromises = links.map((link) => {
-    const commonFeedId = find(feeds, ['url', link]).feedId;
-    const commonPosts = posts.filter((post) => post.linkedId === commonFeedId);
-    return getRssData(link)
-      .then((commonRssLinkData) => {
-        const rssParsedData = getParsedRssData(commonRssLinkData.contents);
-        const newParsedPosts = [...rssParsedData.items]
-          .map((post) => ({
-            linkedId: commonFeedId, ...getPostData(post),
-          }));
-        const diffPosts = differenceBy(newParsedPosts, commonPosts, 'link')
-          .map((p) => ({ ...p, id: uniqueId() }));
-        watcher.posts.unshift(...diffPosts);
-      });
-  });
-  Promise.all(postsPromises).finally(setTimeout(() => watchAddedFeeds(watcher), 5000));
-};
-
-export {
-  watchAddedFeeds, getPostData, handleFormEvent, watchedState,
-};

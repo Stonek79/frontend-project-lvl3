@@ -117,7 +117,6 @@ export default () => {
           watcher.form = { status: 'filling', valid: true, error: null };
           handleFormEvent(watcher, url);
         }
-        setTimeout(() => watchAddedFeeds(watcher, 5000));
       });
 
       watchElements.postsContainer.addEventListener('click', (e) => {
@@ -126,5 +125,6 @@ export default () => {
         watcher.modalReviewed.reviewed.add(id);
         watcher.modalId.id = id;
       });
+      setTimeout(() => watchAddedFeeds(watcher), 5000);
     });
 };

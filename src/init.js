@@ -128,5 +128,5 @@ export default () => {
         watcher.modalId.id = id;
       });
     });
-  setTimeout(() => watchAddedFeeds(watcher), 5000);
+  // setTimeout(() => watchAddedFeeds(watcher), 5000);
 };

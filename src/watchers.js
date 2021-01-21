@@ -55,7 +55,8 @@ const handlePostsView = (state, domElements) => {
 };
 
 const handleError = (error, domElements) => {
-  const { feedbackElement, input } = domElements;
+  const { feedbackElement, input, button } = domElements;
+  button.removeAttribute('disabled');
   input.removeAttribute('readonly');
   input.classList.add('is-invalid');
   feedbackElement.classList.remove('text-success');
@@ -67,14 +68,13 @@ const handleProcessStatus = (status, domElements) => {
   const { feedbackElement, input, button } = domElements;
 
   if (status === 'loading') {
-    button.disabled = true;
+    button.setAttribute('disabled', true);
     input.classList.add('is-invalid');
     input.setAttribute('readonly', 'readonly');
-    console.log(button);
     feedbackElement.classList.remove('text-success', 'text-danger');
     feedbackElement.innerHTML = null;
   } else {
-    button.disabled = false;
+    button.removeAttribute('disabled');
     input.removeAttribute('readonly');
     input.classList.remove('is-invalid');
     feedbackElement.classList.add('text-success');

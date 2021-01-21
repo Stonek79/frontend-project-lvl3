@@ -64,14 +64,17 @@ const handleError = (error, domElements) => {
 };
 
 const handleProcessStatus = (status, domElements) => {
-  const { feedbackElement, input } = domElements;
+  const { feedbackElement, input, button } = domElements;
 
   if (status === 'loading') {
+    button.disabled = true;
     input.classList.add('is-invalid');
     input.setAttribute('readonly', 'readonly');
+    console.log(button);
     feedbackElement.classList.remove('text-success', 'text-danger');
     feedbackElement.innerHTML = null;
   } else {
+    button.disabled = false;
     input.removeAttribute('readonly');
     input.classList.remove('is-invalid');
     feedbackElement.classList.add('text-success');

@@ -41,6 +41,7 @@ export default () => {
   });
 
   const watchElements = {
+    button: document.querySelector('[type="submit"]'),
     feeds: document.querySelector('.feeds'),
     feedbackElement: document.querySelector('.feedback'),
     form: document.querySelector('.rss-form'),

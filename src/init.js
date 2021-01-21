@@ -96,6 +96,8 @@ export default () => {
     return null;
   };
 
+  const watcher = watchedState(state, watchElements);
+
   i18next
     .init({
       lng: 'en',
@@ -103,8 +105,6 @@ export default () => {
       resources,
     })
     .then(() => {
-      const watcher = watchedState(state, watchElements);
-
       watchElements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -124,7 +124,6 @@ export default () => {
         watcher.modalReviewed.reviewed.add(id);
         watcher.modalId.id = id;
       });
-
       setTimeout(() => watchAddedFeeds(watcher, 5000));
     });
 };

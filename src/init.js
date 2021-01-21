@@ -90,7 +90,6 @@ export default () => {
     const links = feeds.map((feed) => feed.url);
     const schema = yup.string().url().notOneOf(links).required();
     try {
-      console.log(url);
       schema.validateSync(url);
     } catch (err) {
       return err.message;

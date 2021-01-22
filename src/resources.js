@@ -3,9 +3,8 @@ export default {
     translation: {
       errors: {
         mustValid: 'Must be valid URL',
-        mustHaveRSS: 'This source doesn\'t contain valid rss',
-        alreadyExist: 'RSS already exist',
-        dataError: 'RSS data is not correct',
+        alreadyExist: 'RSS already exists',
+        dataError: 'This source doesn\'t contain valid rss',
         neterror: 'Network error',
       },
       loaded: 'Rss has been loaded',

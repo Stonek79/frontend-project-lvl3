@@ -55,7 +55,6 @@ export default () => {
     return getRssData(url)
       .then((rssData) => {
         const parsed = parseRssData(rssData.contents);
-        console.log(parsed, 'parsed');
         const { feed, posts } = parsed;
         feed.url = url;
         feed.feedId = uniqueId();
@@ -65,11 +64,9 @@ export default () => {
         watcher.feeds.unshift(feed);
         watcher.form = { status: 'filling', valid: true, error: null };
         watcher.process.status = 'idle';
-        console.log('+++');
       })
       .catch((err) => {
-        console.log(err, 'formEventERR');
-        watcher.process.error = err.message === 'Network Error' ? 'neterror' : err.message;
+        watcher.process.error = err.message === 'Network Error' ? 'neterror' : 'dataError';
         watcher.process.status = 'failed';
       });
   };
@@ -87,7 +84,6 @@ export default () => {
       }));
     Promise.all(postsPromises).finally(setTimeout(() => watchAddedFeeds(watcher), 5000))
       .catch((err) => console.error(err));
-    console.log('!!!');
   };
 
   const validateUrl = (url, feeds) => {

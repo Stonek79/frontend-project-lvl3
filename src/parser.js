@@ -1,7 +1,6 @@
 export default (rssData) => {
-  console.log('PARSER');
   const domparse = new DOMParser();
-  const parsedRssData = domparse.parseFromString(rssData, 'text/xml');
+  const parsedRssData = domparse.parseFromString(rssData, 'application/xml');
   const errTag = parsedRssData.querySelector('parsererror');
   if (errTag) {
     throw new Error('dataError');

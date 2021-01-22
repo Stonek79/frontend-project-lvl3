@@ -17,7 +17,7 @@ const makeLiPosts = (post, viewed) => {
   const fontDecoration = viewed.has(id) ? 'normal' : 'bold';
   const li = `<li class="list-group-item d-flex justify-content-between align-items-start">
     <a href=${postLink} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer' role="link">${postTitle}</a>
-    <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">${i18next.t('buttons.veiw')}</button>
+    <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">${i18next.t('buttons.preveiw')}</button>
   </li>`;
   return li;
 };

@@ -52,7 +52,7 @@ export default () => {
 
   const handleFormEvent = (watcher, url) => {
     watcher.process.status = 'loading';
-    getRssData(url)
+    return getRssData(url)
       .then((rssData) => {
         const parsed = parseRssData(rssData.contents);
         console.log(parsed, 'parsed');

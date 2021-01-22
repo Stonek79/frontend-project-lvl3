@@ -55,7 +55,7 @@ const handlePostsView = (state, domElements) => {
 };
 
 const handleError = (error, domElements) => {
-  console.log(error, 'error');
+  console.log(error, 'error', i18next.t(`errors.${error}`));
   const { feedbackElement, input, button } = domElements;
   button.removeAttribute('disabled');
   input.removeAttribute('readonly');

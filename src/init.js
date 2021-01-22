@@ -68,6 +68,7 @@ export default () => {
         console.log('+++');
       })
       .catch((err) => {
+        console.log(err, 'formEventERR');
         watcher.process.error = err.message === 'Network Error' ? 'neterror' : err.message;
         watcher.process.status = 'failed';
       });

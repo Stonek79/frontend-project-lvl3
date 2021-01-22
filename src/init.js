@@ -116,6 +116,7 @@ export default () => {
         if (validationError) {
           watcher.form = { status: 'failed', valid: false, error: validationError };
         } else {
+          console.log('START');
           watcher.form = { status: 'filling', valid: true, error: null };
           handleFormEvent(watcher, url);
         }
@@ -128,5 +129,5 @@ export default () => {
         watcher.modalId.id = id;
       });
     });
-  // setTimeout(() => watchAddedFeeds(watcher), 5000);
+  setTimeout(() => watchAddedFeeds(watcher), 5000);
 };

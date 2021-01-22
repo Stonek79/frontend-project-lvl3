@@ -55,6 +55,7 @@ const handlePostsView = (state, domElements) => {
 };
 
 const handleError = (error, domElements) => {
+  console.log(error, 'error');
   const { feedbackElement, input, button } = domElements;
   button.removeAttribute('disabled');
   input.removeAttribute('readonly');
@@ -65,6 +66,7 @@ const handleError = (error, domElements) => {
 };
 
 const handleProcessStatus = (status, domElements) => {
+  console.log(status, 'status');
   const { feedbackElement, input, button } = domElements;
 
   if (status === 'loading') {

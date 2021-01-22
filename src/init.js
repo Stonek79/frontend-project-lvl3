@@ -55,6 +55,7 @@ export default () => {
     getRssData(url)
       .then((rssData) => {
         const parsed = parseRssData(rssData.contents);
+        console.log(parsed, 'parsed');
         const { feed, posts } = parsed;
         feed.url = url;
         feed.feedId = uniqueId();
@@ -116,7 +117,6 @@ export default () => {
         if (validationError) {
           watcher.form = { status: 'failed', valid: false, error: validationError };
         } else {
-          console.log('START');
           watcher.form = { status: 'filling', valid: true, error: null };
           handleFormEvent(watcher, url);
         }

@@ -66,7 +66,6 @@ export default () => {
         watcher.process.status = 'idle';
       })
       .catch((err) => {
-        console.log(err.message);
         watcher.process.error = err.message === 'dataError' ? 'dataError' : 'neterror';
         watcher.process.status = 'failed';
       });

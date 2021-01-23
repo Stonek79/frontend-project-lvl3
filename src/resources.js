@@ -13,7 +13,7 @@ export default {
         posts: 'Posts',
       },
       buttons: {
-        preview: 'Preview',
+        preview: 'preview',
       },
     },
   },

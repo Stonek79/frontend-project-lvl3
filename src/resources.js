@@ -2,10 +2,10 @@ export default {
   en: {
     translation: {
       errors: {
-        mustValid: 'Must be valid URL',
+        mustBeValid: 'Must be valid URL',
         alreadyExist: 'RSS already exists',
         dataError: 'This source doesn\'t contain valid rss',
-        neterror: 'Network error',
+        netError: 'Network error',
       },
       loaded: 'Rss has been loaded',
       headings: {
@@ -13,7 +13,7 @@ export default {
         posts: 'Posts',
       },
       buttons: {
-        preveiw: 'Preview',
+        preview: 'Preview',
       },
     },
   },

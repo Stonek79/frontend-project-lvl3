@@ -51,7 +51,6 @@
   "dependencies": {
     "axios": "^0.21.0",
     "bootstrap": "^5.0.0-alpha3",
-    "file-system": "^2.2.2",
     "i18next": "^19.8.4",
     "lodash": "^4.17.20",
     "on-change": "^2.2.0",

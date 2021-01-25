@@ -22,10 +22,14 @@ const makeLiPosts = (post, viewed) => {
 };
 
 export default (state, domElements) => onChange(state, (path, value) => {
+  const {
+    feedbackElement, input, button, feeds, posts,
+  } = domElements;
+
   const handleModalView = (commonState) => {
-    const { posts } = commonState;
+    const allPosts = commonState.posts;
     const id = commonState.modalId;
-    const commonPost = find(posts, ['id', id]);
+    const commonPost = find(allPosts, ['id', id]);
     const mtitle = document.querySelector('.modal-title');
     const mbody = document.querySelector('.modal-body');
     const mfooter = document.querySelector('.full-article');
@@ -35,13 +39,11 @@ export default (state, domElements) => onChange(state, (path, value) => {
   };
 
   const handleFeedsView = (feed) => {
-    const { feeds } = domElements;
     const feedsContent = feed.map(makeLiFeeds).join('');
     feeds.innerHTML = `<h2>${i18next.t('headings.feeds')}</h2><ul class="list-group mb-5">${feedsContent}</ul>`;
   };
 
   const handlePostsView = (commonState) => {
-    const { posts } = domElements;
     const items = commonState.posts;
     const viewedPostsID = commonState.viewedPostsId;
     const postsContent = items.map((item) => makeLiPosts(item, viewedPostsID)).join('');
@@ -49,7 +51,6 @@ export default (state, domElements) => onChange(state, (path, value) => {
   };
 
   const handleError = (error) => {
-    const { feedbackElement, input, button } = domElements;
     button.removeAttribute('disabled');
     input.removeAttribute('readonly');
     input.classList.add('is-invalid');
@@ -59,7 +60,6 @@ export default (state, domElements) => onChange(state, (path, value) => {
   };
 
   const handleProcessStatus = (status) => {
-    const { feedbackElement, input, button } = domElements;
     switch (status) {
       case processStatusConst.loading:
         button.setAttribute('disabled', true);

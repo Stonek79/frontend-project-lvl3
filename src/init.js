@@ -4,48 +4,59 @@ import find from 'lodash/find';
 import differenceBy from 'lodash/differenceBy';
 import i18next from 'i18next';
 import uniqueId from 'lodash/uniqueId';
-import Axios from 'axios';
-import parseRssData from './parser.js';
-import resources from './resources.js';
+import axios from 'axios';
+import parseRssContent from './parser.js';
+import resources from '../locales/resources.js';
+import yuplocales from '../locales/yuplocales.js';
 import watchState from './watchers.js';
-import { formStatusConst, netConst, processStatusConst } from './constants.js';
+import { formStatus, processStatus } from './constants.js';
 
-const getRssData = (url) => Axios(`${netConst.proxy}/get?disableCache=true&url=${url}`)
-  .then((response) => response.data);
+const addProxy = (url) => {
+  const proxy = 'https://hexlet-allorigins.herokuapp.com';
+  const params = new URLSearchParams({ disableCache: 'true', url });
+  const createdUrl = new URL(`/get?${params}`, proxy);
+  return createdUrl.href;
+};
 
-const handleFormEvent = (watcher, url) => {
-  watcher.process.status = processStatusConst.loading;
-  return getRssData(url)
-    .then((rssData) => {
-      const parsed = parseRssData(rssData.contents);
+const loadRss = (watcher, url) => {
+  watcher.process.status = processStatus.loading;
+  const proxedUrl = addProxy(url);
+  return axios(proxedUrl)
+    .then((rssContent) => {
+      const parsed = parseRssContent(rssContent.data.contents);
       const { feed, posts } = parsed;
-      feed.url = url;
-      feed.feedId = uniqueId();
-      const feedPosts = posts.map((post) => ({ ...post, linkedId: feed.feedId, id: uniqueId() }));
+      const finalFeed = { ...feed, url, feedId: uniqueId() };
+      const finalPosts = posts.map((post) => ({ ...post, linkedId: feed.feedId, id: uniqueId() }));
 
-      watcher.posts.unshift(...feedPosts);
-      watcher.feeds.unshift(feed);
-      watcher.form = { status: formStatusConst.filling, valid: true, error: null };
-      watcher.process.status = processStatusConst.idle;
+      watcher.posts.unshift(...finalPosts);
+      watcher.feeds.unshift(finalFeed);
+      watcher.form = { status: formStatus.filling, valid: true, error: null };
+      watcher.process.status = processStatus.idle;
     })
     .catch((err) => {
       watcher.process.error = err.message === 'dataError' ? 'dataError' : 'netError';
-      watcher.process.status = processStatusConst.failed;
+      watcher.process.status = processStatus.failed;
     });
 };
 
 const watchAddedFeeds = (watcher) => {
   const { feeds, posts } = watcher;
-  const feedUrl = feeds.map((feed) => feed.url);
-  const postsPromises = feedUrl.map((url) => getRssData(url)
-    .then((commonRssUrlData) => {
-      const commonFeedId = find(feeds, ['url', url]).feedId;
-      const rssParsedData = parseRssData(commonRssUrlData.contents);
-      const diffPosts = differenceBy(rssParsedData.posts, posts, 'postLink')
-        .map((post) => ({ ...post, linkedId: commonFeedId, id: uniqueId() }));
-      watcher.posts.unshift(...diffPosts);
-    }));
-  Promise.all(postsPromises).finally(setTimeout(() => watchAddedFeeds(watcher), 5000))
+  const feedsUrls = feeds.map((feed) => feed.url);
+  const getNewPosts = feedsUrls.map((url) => {
+    const proxedUrl = addProxy(url);
+    return axios(proxedUrl)
+      .then((commonRssContent) => {
+        const newContent = commonRssContent.data.contents;
+        const commonFeedId = find(feeds, ['url', url]).feedId;
+        const parsedRssContent = parseRssContent(newContent);
+        const getDiffPosts = differenceBy(parsedRssContent.posts, posts, 'postLink')
+          .map((post) => ({ ...post, linkedId: commonFeedId, id: uniqueId() }));
+        watcher.posts.unshift(...getDiffPosts);
+      })
+      .catch((err) => console.error(err));
+  });
+  Promise.all(getNewPosts)
+    .finally(() => setTimeout(() => watchAddedFeeds(watcher), 5000))
     .catch((err) => console.error(err));
 };
 
@@ -54,46 +65,37 @@ const validateUrl = (url, feeds) => {
   const schema = yup.string().url().notOneOf(links).required();
   try {
     schema.validateSync(url);
+    return null;
   } catch (err) {
     return err.message;
   }
-  return null;
 };
 
 export default () => {
   const state = {
-    viewedPostsId: new Set([]),
+    viewedPostIds: new Set([]),
     modalId: '',
     feeds: [],
     posts: [],
     form: {
-      status: formStatusConst.filling,
+      status: formStatus.filling,
       valid: true,
       error: '',
     },
     process: {
-      status: processStatusConst.idle,
+      status: processStatus.idle,
       error: '',
     },
   };
 
-  yup.setLocale({
-    mixed: {
-      default: 'ValidationError',
-      notOneOf: 'alreadyExist',
-    },
-    string: {
-      url: 'mustBeValid',
-    },
-  });
+  yup.setLocale(yuplocales.locales);
 
   const watchElements = {
-    button: document.querySelector('[type="submit"]'),
-    feeds: document.querySelector('.feeds'),
+    rssSubmitButton: document.querySelector('[type="submit"]'),
+    feedsContainer: document.querySelector('.feeds'),
     feedbackElement: document.querySelector('.feedback'),
-    form: document.querySelector('.rss-form'),
+    rssSubmitForm: document.querySelector('.rss-form'),
     input: document.querySelector('input'),
-    posts: document.querySelector('.posts'),
     postsContainer: document.querySelector('.posts'),
   };
 
@@ -106,23 +108,23 @@ export default () => {
       resources,
     })
     .then(() => {
-      watchElements.form.addEventListener('submit', (e) => {
+      watchElements.rssSubmitForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const url = formData.get('url');
         const validationError = validateUrl(url, watcher.feeds);
         if (validationError) {
-          watcher.form = { status: formStatusConst.failed, valid: false, error: validationError };
+          watcher.form = { status: formStatus.failed, valid: false, error: validationError };
         } else {
-          watcher.form = { status: formStatusConst.filling, valid: true, error: null };
-          handleFormEvent(watcher, url);
+          watcher.form = { status: formStatus.filling, valid: true, error: null };
+          loadRss(watcher, url);
         }
       });
 
       watchElements.postsContainer.addEventListener('click', (e) => {
         const { id } = e.target.dataset;
         if (!id) return;
-        watcher.viewedPostsId.add(id);
+        watcher.viewedPostIds.add(id);
         watcher.modalId = id;
       });
     });

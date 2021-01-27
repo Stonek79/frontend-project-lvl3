@@ -1,19 +1,19 @@
-export default (rssData) => {
-  const domparse = new DOMParser();
-  const parsedRssData = domparse.parseFromString(rssData, 'application/xml');
+export default (rssContent) => {
+  const domparser = new DOMParser();
+  const parsedRssContent = domparser.parseFromString(rssContent, 'application/xml');
 
-  const errTag = parsedRssData.querySelector('parsererror');
-  if (errTag) {
+  const error = parsedRssContent.querySelector('parsererror');
+  if (error) {
     throw new Error('dataError');
   }
 
-  const title = parsedRssData.querySelector('channel > title');
-  const description = parsedRssData.querySelector('channel > description');
-  const feedTitle = title.textContent;
-  const feedDescription = description.textContent;
+  const channalTitle = parsedRssContent.querySelector('channel > title');
+  const channalDescription = parsedRssContent.querySelector('channel > description');
+  const feedTitle = channalTitle.textContent;
+  const feedDescription = channalDescription.textContent;
 
-  const items = parsedRssData.querySelectorAll('item');
-  const getPostData = (item) => {
+  const items = parsedRssContent.querySelectorAll('item');
+  const getPostContent = (item) => {
     const itemTitle = item.querySelector('title');
     const itemDescription = item.querySelector('description');
     const link = item.querySelector('link');
@@ -23,7 +23,7 @@ export default (rssData) => {
     return { postTitle, postDescription, postLink };
   };
 
-  const posts = [...items].map((item) => getPostData(item));
+  const posts = [...items].map(getPostContent);
 
   const feed = { feedTitle, feedDescription };
 

@@ -2,7 +2,7 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
 import find from 'lodash/find';
-import { processStatusConst } from './constants';
+import { processStatus } from './constants';
 
 const makeLiFeeds = (feed) => {
   const { feedTitle, feedDescription } = feed;
@@ -21,37 +21,40 @@ const makeLiPosts = (post, viewed) => {
   </li>`;
 };
 
-export default (state, domElements) => onChange(state, (path, value) => {
+export default (state, domElements) => onChange(state, (path) => {
   const {
-    feedbackElement, input, button, feeds, posts,
+    feedbackElement, input, rssSubmitButton, feedsContainer, postsContainer,
   } = domElements;
 
   const handleModalView = (commonState) => {
-    const allPosts = commonState.posts;
-    const id = commonState.modalId;
-    const commonPost = find(allPosts, ['id', id]);
-    const mtitle = document.querySelector('.modal-title');
-    const mbody = document.querySelector('.modal-body');
-    const mfooter = document.querySelector('.full-article');
-    mtitle.textContent = commonPost.postTitle;
-    mbody.textContent = commonPost.postDescription;
-    mfooter.href = commonPost.postLink;
+    const { posts } = commonState;
+    const { modalId } = commonState;
+    const commonPost = find(posts, ['id', modalId]);
+    const modalTitle = document.querySelector('.modal-title');
+    const modalBody = document.querySelector('.modal-body');
+    const modalFooter = document.querySelector('.full-article');
+    modalTitle.textContent = commonPost.postTitle;
+    modalBody.textContent = commonPost.postDescription;
+    modalFooter.href = commonPost.postLink;
   };
 
-  const handleFeedsView = (feed) => {
-    const feedsContent = feed.map(makeLiFeeds).join('');
-    feeds.innerHTML = `<h2>${i18next.t('headings.feeds')}</h2><ul class="list-group mb-5">${feedsContent}</ul>`;
+  const handleFeedsView = (commonState) => {
+    const { feeds } = commonState;
+    const feedsContent = feeds.map(makeLiFeeds).join('');
+    feedsContainer.innerHTML = `<h2>${i18next.t('headings.feeds')}</h2>
+      <ul class="list-group mb-5">${feedsContent}</ul>`;
   };
 
   const handlePostsView = (commonState) => {
-    const items = commonState.posts;
-    const viewedPostsID = commonState.viewedPostsId;
-    const postsContent = items.map((item) => makeLiPosts(item, viewedPostsID)).join('');
-    posts.innerHTML = `<h2>${i18next.t('headings.posts')}</h2><ul class="list-group">${postsContent}</ul>`;
+    const { posts } = commonState;
+    const { viewedPostIds } = commonState;
+    const postsContent = posts.map((post) => makeLiPosts(post, viewedPostIds)).join('');
+    postsContainer.innerHTML = `<h2>${i18next.t('headings.posts')}</h2>
+      <ul class="list-group">${postsContent}</ul>`;
   };
 
   const handleError = (error) => {
-    button.removeAttribute('disabled');
+    rssSubmitButton.removeAttribute('disabled');
     input.removeAttribute('readonly');
     input.classList.add('is-invalid');
     feedbackElement.classList.remove('text-success');
@@ -59,61 +62,47 @@ export default (state, domElements) => onChange(state, (path, value) => {
     feedbackElement.textContent = i18next.t(`errors.${error}`);
   };
 
-  const handleProcessStatus = (status) => {
+  const handleProcessStatus = (processState) => {
+    const { status, error } = processState.process;
     switch (status) {
-      case processStatusConst.loading:
-        button.setAttribute('disabled', true);
-        input.classList.add('is-invalid');
+      case processStatus.loading:
+        rssSubmitButton.setAttribute('disabled', true);
         input.setAttribute('readonly', 'readonly');
         feedbackElement.classList.remove('text-success', 'text-danger');
         feedbackElement.innerHTML = null;
         break;
-      case processStatusConst.idle:
-        button.removeAttribute('disabled');
+      case processStatus.idle:
+        rssSubmitButton.removeAttribute('disabled');
         input.removeAttribute('readonly');
         input.classList.remove('is-invalid');
         feedbackElement.classList.add('text-success');
         feedbackElement.textContent = i18next.t('loaded');
         input.value = null;
         break;
+      case processStatus.failed:
+        handleError(error);
+        break;
       default:
         throw new Error(`Unknown processStatus: ${status}`);
     }
   };
 
-  const handleFormState = (form) => {
-    const { valid, error } = form.form;
+  const handleFormState = (commonState) => {
+    const { valid, error } = commonState.form;
     return valid ? null : handleError(error);
-  };
-
-  const handleProcessState = (processState) => {
-    const { status, error } = processState.process;
-    switch (status) {
-      case processStatusConst.failed:
-        handleError(error);
-        break;
-      case processStatusConst.idle:
-      case processStatusConst.loading:
-        handleProcessStatus(status);
-        break;
-      default:
-        throw new Error(`Unknown processState: ${status}`);
-    }
   };
 
   switch (path) {
     case 'process.status':
-      handleProcessState(state);
+      handleProcessStatus(state);
       break;
     case 'modalId':
       handleModalView(state);
       break;
-    case 'viewedPostsId':
-      handlePostsView(state);
-      break;
     case 'feeds':
-      handleFeedsView(value);
+      handleFeedsView(state);
       break;
+    case 'viewedPostIds':
     case 'posts':
       handlePostsView(state);
       break;

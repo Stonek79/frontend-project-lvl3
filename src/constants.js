@@ -1,16 +1,12 @@
-const processStatusConst = {
+const processStatus = {
   idle: 'idle',
   loading: 'loading',
   failed: 'failed',
 };
 
-const formStatusConst = {
+const formStatus = {
   filling: 'filling',
   failed: 'failed',
 };
 
-const netConst = {
-  proxy: 'https://hexlet-allorigins.herokuapp.com',
-};
-
-export { formStatusConst, netConst, processStatusConst };
+export { formStatus, processStatus };

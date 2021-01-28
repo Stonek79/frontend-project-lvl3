@@ -4,7 +4,7 @@ import i18next from 'i18next';
 import find from 'lodash/find';
 import { processStatus } from './constants';
 
-const makeLiFeeds = (feed) => {
+const createLiFeedElement = (feed) => {
   const { feedTitle, feedDescription } = feed;
   return `<li class="list-group-item">
     <h3>${feedTitle}</h3>
@@ -12,12 +12,12 @@ const makeLiFeeds = (feed) => {
   </li>`;
 };
 
-const makeLiPosts = (post, viewed) => {
+const createLiPostElement = (post, viewed) => {
   const { id, postTitle, postLink } = post;
   const fontDecoration = viewed.has(id) ? 'normal' : 'bold';
   return `<li class="list-group-item d-flex justify-content-between align-items-start">
-    <a href=${postLink} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer' role="link">${postTitle}</a>
-    <button aria-label="button" type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">${i18next.t('buttons.preview')}</button>
+    <a href=${postLink} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>${postTitle}</a>
+    <button type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">${i18next.t('buttons.preview')}</button>
   </li>`;
 };
 
@@ -26,7 +26,7 @@ export default (state, domElements) => onChange(state, (path) => {
     feedbackElement, input, rssSubmitButton, feedsContainer, postsContainer,
   } = domElements;
 
-  const handleModalView = (commonState) => {
+  const handleModal = (commonState) => {
     const { posts } = commonState;
     const { modalId } = commonState;
     const commonPost = find(posts, ['id', modalId]);
@@ -38,17 +38,17 @@ export default (state, domElements) => onChange(state, (path) => {
     modalFooter.href = commonPost.postLink;
   };
 
-  const handleFeedsView = (commonState) => {
+  const handleFeeds = (commonState) => {
     const { feeds } = commonState;
-    const feedsContent = feeds.map(makeLiFeeds).join('');
+    const feedsContent = feeds.map(createLiFeedElement).join('');
     feedsContainer.innerHTML = `<h2>${i18next.t('headings.feeds')}</h2>
       <ul class="list-group mb-5">${feedsContent}</ul>`;
   };
 
-  const handlePostsView = (commonState) => {
+  const handlePosts = (commonState) => {
     const { posts } = commonState;
     const { viewedPostIds } = commonState;
-    const postsContent = posts.map((post) => makeLiPosts(post, viewedPostIds)).join('');
+    const postsContent = posts.map((post) => createLiPostElement(post, viewedPostIds)).join('');
     postsContainer.innerHTML = `<h2>${i18next.t('headings.posts')}</h2>
       <ul class="list-group">${postsContent}</ul>`;
   };
@@ -97,14 +97,14 @@ export default (state, domElements) => onChange(state, (path) => {
       handleProcessStatus(state);
       break;
     case 'modalId':
-      handleModalView(state);
+      handleModal(state);
       break;
     case 'feeds':
-      handleFeedsView(state);
+      handleFeeds(state);
       break;
     case 'viewedPostIds':
     case 'posts':
-      handlePostsView(state);
+      handlePosts(state);
       break;
     case 'form':
       handleFormState(state);

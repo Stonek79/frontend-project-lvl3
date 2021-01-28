@@ -7,23 +7,23 @@ export default (rssContent) => {
     throw new Error('dataError');
   }
 
-  const channalTitle = parsedRssContent.querySelector('channel > title');
-  const channalDescription = parsedRssContent.querySelector('channel > description');
-  const feedTitle = channalTitle.textContent;
-  const feedDescription = channalDescription.textContent;
+  const feedTitleElement = parsedRssContent.querySelector('channel > title');
+  const feedDescriptionElement = parsedRssContent.querySelector('channel > description');
+  const feedTitle = feedTitleElement.textContent;
+  const feedDescription = feedDescriptionElement.textContent;
 
-  const items = parsedRssContent.querySelectorAll('item');
+  const postElements = parsedRssContent.querySelectorAll('item');
   const getPostContent = (item) => {
-    const itemTitle = item.querySelector('title');
-    const itemDescription = item.querySelector('description');
-    const link = item.querySelector('link');
-    const postLink = link.textContent;
-    const postDescription = itemDescription.textContent;
-    const postTitle = itemTitle.textContent;
+    const postTitleElement = item.querySelector('title');
+    const postDescriptionElement = item.querySelector('description');
+    const postLinkElement = item.querySelector('link');
+    const postLink = postLinkElement.textContent;
+    const postDescription = postDescriptionElement.textContent;
+    const postTitle = postTitleElement.textContent;
     return { postTitle, postDescription, postLink };
   };
 
-  const posts = [...items].map(getPostContent);
+  const posts = [...postElements].map(getPostContent);
 
   const feed = { feedTitle, feedDescription };
 

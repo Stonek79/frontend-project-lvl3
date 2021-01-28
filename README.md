@@ -9,4 +9,4 @@
 
 * * *
 
-[RSS aggregator](https://frontend-project-lvl3-puce.vercel.app/)
+[RSS aggregator](https://frontend-project-lvl3-git-main.stonek79.vercel.app/)

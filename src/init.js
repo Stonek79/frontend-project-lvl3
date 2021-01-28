@@ -34,7 +34,7 @@ const loadRss = (watcher, url) => {
       watcher.process.status = processStatus.idle;
     })
     .catch((err) => {
-      console.error(err);
+      // console.error(err);
       watcher.process.error = err.message === 'dataError' ? 'dataError' : 'netError';
       watcher.process.status = processStatus.failed;
     });

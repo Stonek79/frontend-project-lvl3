@@ -14,9 +14,9 @@ const createLiFeedElement = (feed) => {
 
 const createLiPostElement = (post, viewed) => {
   const { id, postTitle, postLink } = post;
-  const fontDecoration = viewed.has(id) ? 'normal' : 'bold';
+  const fontDecoration = viewed.has(id) ? 'font-weight-normal' : 'font-weight-bold';
   return `<li class="list-group-item d-flex justify-content-between align-items-start">
-    <a href=${postLink} class='fw-${fontDecoration} text-decoration-none' data-id=${id} target='_blank' rel='noopener noreferrer'>${postTitle}</a>
+    <a href=${postLink} class="${fontDecoration}" data-id=${id} target="_blank" rel="noopener noreferrer">${postTitle}</a>
     <button type="button" class="btn btn-primary btn-sm" data-id=${id} data-toggle="modal" data-target="#modal">${i18next.t('buttons.preview')}</button>
   </li>`;
 };

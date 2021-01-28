@@ -34,7 +34,7 @@ const loadRss = (watcher, url) => {
       watcher.process.status = processStatus.idle;
     })
     .catch((err) => {
-      // console.error(err);
+      console.log(err);
       watcher.process.error = err.message === 'dataError' ? 'dataError' : 'netError';
       watcher.process.status = processStatus.failed;
     });
@@ -54,7 +54,7 @@ const watchAddedFeeds = (watcher) => {
           .map((post) => ({ ...post, linkedId: commonFeedId, id: uniqueId() }));
         watcher.posts.unshift(...getDiffPosts);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.log(err));
   });
   Promise.all(getNewPosts).finally(() => setTimeout(() => watchAddedFeeds(watcher), 5000));
 };

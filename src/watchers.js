@@ -57,6 +57,7 @@ export default (state, domElements) => onChange(state, (path) => {
     rssSubmitButton.removeAttribute('disabled');
     input.removeAttribute('readonly');
     input.classList.add('is-invalid');
+    input.select();
     feedbackElement.classList.remove('text-success');
     feedbackElement.classList.add('text-danger');
     feedbackElement.textContent = i18next.t(`errors.${error}`);
@@ -78,6 +79,7 @@ export default (state, domElements) => onChange(state, (path) => {
         feedbackElement.classList.add('text-success');
         feedbackElement.textContent = i18next.t('loaded');
         input.value = null;
+        input.focus();
         break;
       case processStatus.failed:
         handleError(error);

@@ -50,9 +50,9 @@ const watchAddedFeeds = (watcher) => {
         const newContent = commonRssContent.data.contents;
         const commonFeedId = find(feeds, ['url', url]).feedId;
         const parsedRssContent = parseRssContent(newContent);
-        const getDiffPosts = differenceBy(parsedRssContent.posts, posts, 'postLink')
+        const diffPosts = differenceBy(parsedRssContent.posts, posts, 'postLink')
           .map((post) => ({ ...post, linkedId: commonFeedId, id: uniqueId() }));
-        watcher.posts.unshift(...getDiffPosts);
+        watcher.posts.unshift(...diffPosts);
       })
       .catch((err) => console.log(err));
   });

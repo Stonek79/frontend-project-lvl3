@@ -54,6 +54,7 @@ export default (state, domElements) => onChange(state, (path) => {
   };
 
   const handleError = (error) => {
+    if (!error) return;
     rssSubmitButton.removeAttribute('disabled');
     input.removeAttribute('readonly');
     input.classList.add('is-invalid');
@@ -63,8 +64,8 @@ export default (state, domElements) => onChange(state, (path) => {
     feedbackElement.textContent = i18next.t(`errors.${error}`);
   };
 
-  const handleProcessStatus = (processState) => {
-    const { status, error } = processState.process;
+  const handleProcessStatus = (commonState) => {
+    const { status, error } = commonState.process;
     switch (status) {
       case processStatus.loading:
         rssSubmitButton.setAttribute('disabled', true);
@@ -89,11 +90,6 @@ export default (state, domElements) => onChange(state, (path) => {
     }
   };
 
-  const handleFormState = (commonState) => {
-    const { valid, error } = commonState.form;
-    return valid ? null : handleError(error);
-  };
-
   switch (path) {
     case 'process.status':
       handleProcessStatus(state);
@@ -109,7 +105,7 @@ export default (state, domElements) => onChange(state, (path) => {
       handlePosts(state);
       break;
     case 'form':
-      handleFormState(state);
+      handleError(state.form.error);
       break;
     default:
       break;

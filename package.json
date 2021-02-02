@@ -43,6 +43,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
+    "dompurify": "^2.2.6",
     "i18next": "^19.8.4",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",

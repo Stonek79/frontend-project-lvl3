@@ -2,6 +2,7 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
 import find from 'lodash/find';
+import DOMPurify from 'dompurify';
 import { processStatus } from './constants';
 
 const createLiFeedElement = (feed) => {
@@ -41,16 +42,18 @@ export default (state, domElements) => onChange(state, (path) => {
   const handleFeeds = (commonState) => {
     const { feeds } = commonState;
     const feedsContent = feeds.map(createLiFeedElement).join('');
-    feedsContainer.innerHTML = `<h2>${i18next.t('headings.feeds')}</h2>
-      <ul class="list-group mb-5">${feedsContent}</ul>`;
+    const feedsString = `<h2>${i18next.t('headings.feeds')}</h2>
+    <ul class="list-group mb-5">${feedsContent}</ul>`;
+    feedsContainer.innerHTML = DOMPurify.sanitize(feedsString);
   };
 
   const handlePosts = (commonState) => {
     const { posts } = commonState;
     const { viewedPostIds } = commonState;
     const postsContent = posts.map((post) => createLiPostElement(post, viewedPostIds)).join('');
-    postsContainer.innerHTML = `<h2>${i18next.t('headings.posts')}</h2>
-      <ul class="list-group">${postsContent}</ul>`;
+    const postsString = `<h2>${i18next.t('headings.posts')}</h2>
+    <ul class="list-group">${postsContent}</ul>`;
+    postsContainer.innerHTML = DOMPurify.sanitize(postsString);
   };
 
   const handleError = (error) => {

@@ -79,11 +79,11 @@ export default () => {
     form: {
       status: formStatus.filling,
       valid: true,
-      error: '',
+      error: null,
     },
     process: {
       status: processStatus.idle,
-      error: '',
+      error: null,
     },
   };
 
